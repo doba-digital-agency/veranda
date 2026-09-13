@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="map-pin">
+<path id="Vector" d="M63.0054 108.999C72.3045 100.969 99.9967 74.9663 99.9967 49.999C99.9967 39.3893 95.7829 29.2142 88.2822 21.7121C80.7815 14.2099 70.6083 9.99526 60.0007 9.99526C49.3931 9.99526 39.22 14.2099 31.7193 21.7121C24.2186 29.2142 20.0047 39.3893 20.0047 49.999C20.0047 74.9663 47.697 100.969 56.996 108.999C57.8623 109.651 58.9169 110.003 60.0007 110.003C61.0846 110.003 62.1392 109.651 63.0054 108.999Z" stroke="#333729" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round"/>
+<circle id="Vector_2" cx="60.0007" cy="49.999" r="15" stroke="#333729" stroke-opacity="0.2" stroke-width="2"/>
+</g>
+</svg>

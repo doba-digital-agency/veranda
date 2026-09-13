@@ -1,0 +1,1306 @@
+/*
+  Reusable UI components. Desktop breakpoint is 1024px, matching layout.css
+  (Figma has no tablet frame; this cutover is our own judgment call).
+*/
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-bold);
+  font-size: var(--font-size-nav-button);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  text-align: center;
+  padding: var(--space-2) var(--space-4);
+  position: relative;
+  /* transform-only + a slow color fade: nothing here touches opacity, so a
+     GSAP scroll-reveal animating a button's opacity is never fought by this
+     transition (a stray CSS `transition: opacity` on .btn once caused a
+     staggered GSAP reveal to leave the "Всі послуги" button stuck invisible
+     — see the services section-heading row). */
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s ease;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-2px);
+}
+
+.btn--primary,
+.btn--inverse {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn--primary::after,
+.btn--inverse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  color: var(--color-text-on-cream);
+}
+
+.btn--inverse:hover,
+.btn--inverse:focus-visible {
+  color: var(--color-text-on-dark);
+}
+
+.btn--primary:hover::after,
+.btn--primary:focus-visible::after,
+.btn--inverse:hover::after,
+.btn--inverse:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.btn--primary {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+}
+
+.btn--primary::after {
+  background-color: var(--color-cream);
+}
+
+.btn--inverse {
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  padding: 16px;
+}
+
+.btn--inverse::after {
+  background-color: var(--color-dark-olive);
+}
+
+@media (min-width: 1024px) {
+  .btn--inverse {
+    padding: 24px 16px;
+  }
+}
+
+.btn--secondary {
+  background-color: transparent;
+  padding: var(--space-2) 0;
+  color: var(--color-text-on-cream);
+  font-weight: var(--font-weight-heading-bold);
+  /* The idle bottom line is drawn by ::after below, not a native border —
+     see that rule for why. */
+}
+
+/* Snake border (see scroll-experience.js): idle and hover are two
+   mutually exclusive border systems, never shown at once. The plain
+   border-bottom below is visible only in the true idle state; the moment
+   a hover/focus interaction starts, JS adds --border-hidden (making it
+   transparent — width/layout untouched) and an independent SVG overlay
+   takes over entirely, animating in as a full frame and, on the way out,
+   retracting to nothing before the CSS border is allowed to reappear (as
+   its own short "redraw" through the same SVG, then swapped for the real
+   border once they'd look identical). This lives in scroll-experience.js
+   rather than main.js because it needs GSAP for clean tween interruption
+   — and GSAP loads after main.js runs (see the script order in
+   index.html), so main.js can never rely on it being present at setup
+   time. prefers-reduced-motion is handled by that file's own top-level
+   check, which skips this entirely — that's why there is no media query
+   here.
+
+   The overlay's left/top/width/height are set entirely in JS, per button,
+   from that button's actual measured text content box plus a gap —
+   .btn--secondary has zero horizontal padding (confirmed via computed
+   styles), so there's no static CSS value that could position this
+   correctly for every label. */
+.btn--secondary::after {
+  /* Replaces the plain border-bottom that used to live on .btn--secondary
+     itself: a native border can only ever sit exactly at the button's own
+     border-box edge, but the idle line now needs to share the SVG
+     overlay's own (JS-measured, text-based) geometry exactly — down to
+     the pixel — so the two can hand off invisibly. Position/size come
+     from --btn-border-* custom properties set once per button in
+     scroll-experience.js's layout(), the SAME numbers used for the SVG's
+     own box, so there is exactly one source of truth for where this line
+     sits. The fallback values only matter if that JS never ran. */
+  content: '';
+  position: absolute;
+  left: var(--btn-border-left, 0);
+  top: var(--btn-border-top, calc(100% - 1px));
+  width: var(--btn-border-width, 100%);
+  height: 1px;
+  background-color: currentColor;
+  pointer-events: none;
+}
+
+.btn--secondary--border-hidden::after {
+  opacity: 0;
+}
+
+.btn--secondary__snake {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+  /* Overrides the global `img, svg { max-width: 100% }` reset (base.css):
+     that reset caps this SVG to its containing block's width — which,
+     for .btn--secondary, is exactly the text's own width (zero horizontal
+     padding) — silently shrinking it back below the width layout() just
+     set via JS regardless of what the width attribute said, which was
+     the actual cause of the frame appearing to clip the text on the
+     right (the browser was rendering it narrower than intended, not the
+     text bounds being measured wrong). */
+  max-width: none;
+}
+
+.btn--secondary__snake-path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.btn--secondary.btn--on-dark {
+  color: var(--color-text-on-dark);
+  font-weight: var(--font-weight-heading-bold);
+}
+
+.btn__label-prefix {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .btn--secondary {
+    font-weight: var(--font-weight-heading-regular);
+  }
+
+  .btn__label-prefix {
+    display: inline;
+  }
+}
+
+.btn--block {
+  display: flex;
+  width: 100%;
+}
+
+.btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   Section heading
+   ========================================================= */
+
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.section-heading__eyebrow {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-light);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-cream-40);
+}
+
+.section-heading__title {
+  font-size: var(--font-size-h1);
+  max-width: 40ch;
+}
+
+.section-heading__lede {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  color: var(--color-text-on-cream);
+  max-width: 40ch;
+}
+
+.section-heading--on-dark .section-heading__title,
+.section-heading--on-dark .section-heading__lede {
+  color: var(--color-text-on-dark);
+}
+
+.section-heading--on-dark .section-heading__eyebrow {
+  color: var(--color-text-on-dark-60);
+}
+
+.section-heading--center {
+  align-items: center;
+  text-align: center;
+}
+
+/* Figma mobile: the portfolio heading/button in this "center" block are
+   actually left-aligned on the 428px frame; desktop keeps the centered look. */
+.portfolio-carousel .section-heading--center {
+  align-items: flex-start;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  .portfolio-carousel .section-heading--center {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* Root cause of the mobile heading wrap bugs in both `.section-heading`
+   variants below: `.section-heading--center` sets align-items to
+   flex-start (portfolio) or center (quick-contact), and NEITHER value is
+   `stretch` — so a flex item with no explicit width doesn't fill the
+   available cross-axis space, it shrink-to-fits instead. For a heading
+   with a forced <br>, shrink-to-fit collapses the box down to the width
+   of its single WIDEST already-broken segment (observed: 234px, exactly
+   matching "пишаємось" alone, on a section that actually has ~335px
+   available) — every subsequent line then wraps again inside that
+   artificially narrow box instead of using the real available width.
+   Restoring `stretch` for just the title (mobile only, so desktop's
+   existing centered/shrink-fit look is untouched) fixes the wrap at its
+   source rather than compensating with font-size or more forced breaks. */
+@media (max-width: 1023.98px) {
+  .section-heading--center .section-heading__title {
+    align-self: stretch;
+  }
+}
+
+.section-heading--tight {
+  margin-bottom: var(--space-4);
+}
+
+.section-heading--narrow {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.section-heading__title--wide {
+  max-width: none;
+}
+
+/* Mobile: hidden by default, shown as a real line break only at desktop
+   (see .u-br-desktop usage in index.html for headings/ledes with a
+   desktop-only forced break). */
+.u-br-desktop {
+  display: none;
+}
+
+.u-br-mobile {
+  display: inline;
+}
+
+/* Figma-confirmed mobile wrap widths (428px frame) */
+#menu-heading {
+  max-width: 340px;
+}
+
+@media (max-width: 1023.98px) {
+  /* "запам'ятовуються" alone is ~354px wide at the shared h1 clamp's 36px
+     mobile minimum, but this heading's own available width (inside the
+     section's mobile gutters) is only ~335px — the word itself is wider
+     than the space it has, regardless of how it wraps. SplitText's
+     line-reveal (scroll-experience.js) wraps each line in its own
+     overflow:clip mask sized to that available width, so an
+     over-width word gets a real visual crop, not just harmless CSS
+     overflow. Scoped down just enough for the word to fit with room to
+     spare, rather than changing the shared --font-size-h1 token used
+     everywhere else. */
+  #menu-heading {
+    font-size: 2rem;
+  }
+}
+
+#menu-lede,
+#why-us-lede {
+  max-width: 350px;
+}
+
+#about-teaser-lede {
+  max-width: none;
+}
+
+@media (min-width: 1024px) {
+  .u-br-desktop {
+    display: inline;
+  }
+
+  .u-br-mobile {
+    display: none;
+  }
+
+  /* Figma-confirmed per-instance wrap widths for the 80px display headings */
+  #services-heading {
+    max-width: 645px;
+  }
+
+  #menu-heading {
+    max-width: 1156px;
+  }
+
+  #why-us-heading {
+    max-width: 459px;
+  }
+
+  #about-teaser-heading {
+    max-width: 1117px;
+  }
+
+  #portfolio-heading {
+    max-width: 1008px;
+  }
+
+  #testimonials-heading {
+    max-width: 459px;
+  }
+
+  /* Figma-confirmed per-instance lede widths */
+  #services-lede {
+    max-width: 362px;
+  }
+
+  #menu-lede,
+  #why-us-lede {
+    max-width: 280px;
+  }
+
+  #dish-bruschetta-title {
+    max-width: 272px;
+  }
+
+  #dish-veal-title {
+    max-width: 210px;
+  }
+
+  #about-teaser-lede {
+    max-width: 420px;
+  }
+
+  #services-hero-lede {
+    max-width: 443px;
+  }
+
+  /* Same "Event Info Container" component as Services' hero (2206:503),
+     same Figma-confirmed 443px width — this one was simply never added
+     when the Menu hero was built, so it fell through to the generic
+     .hero__meta-text 279px cap (sized for Home's much shorter lede) and
+     wrapped onto 5 cramped lines instead of Figma's wider, more natural
+     paragraph shape. */
+  #menu-hero-lede {
+    max-width: 443px;
+  }
+
+  /* Same "Event Info Container" component and same Figma-confirmed 443px
+     width as Services'/Menu's hero lede (2213:916) — added up front this
+     time rather than discovered missing later. */
+  #about-hero-lede {
+    max-width: 443px;
+  }
+}
+
+.section-heading__row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .section-heading__row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .section-heading__row--stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+}
+
+/* =========================================================
+   Service image + dark description panel
+   ========================================================= */
+
+.service-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-text-on-cream-10);
+}
+
+.service-panel__media img,
+.service-panel__body {
+  transition: opacity 0.25s ease;
+}
+
+/* transform is added only to __body, not to the media img: the img's own
+   scale is already driven by a GSAP scroll reveal (see scroll-experience.js
+   setupServices), and a CSS transition on the same property there would
+   race that tween the same way the .btn opacity transition once did. */
+.service-panel__body {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.service-panel.is-transitioning .service-panel__media img,
+.service-panel.is-transitioning .service-panel__body {
+  opacity: 0;
+}
+
+.service-panel.is-transitioning .service-panel__body {
+  transform: scale(0.98);
+}
+
+.service-panel__media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  /* Swipe-to-advance (main.js): a lighter drag gesture than the portfolio
+     track's — this carousel swaps one panel's content rather than
+     translating a row of cards, so drag here recognizes a gesture and
+     calls the same goTo() the arrow buttons use, rather than visually
+     following the pointer. */
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.service-panel__media.is-dragging {
+  cursor: grabbing;
+}
+
+.service-panel__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-panel__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-strong);
+}
+
+.service-panel__body {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-panel-gap-mobile);
+}
+
+.service-panel__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.service-panel__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h2);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-heading-display);
+  text-transform: uppercase;
+}
+
+.service-panel__desc {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+}
+
+.service-panel__tags {
+  display: flex;
+}
+
+.service-panel__tag {
+  border: 1px solid var(--color-text-on-dark-70);
+  padding: var(--space-1) var(--space-tag-x);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-on-dark-70);
+}
+
+.service-panel__tag + .service-panel__tag {
+  margin-left: -1px;
+}
+
+.service-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .service-panel {
+    flex-direction: row;
+    height: 480px;
+    border: none;
+  }
+
+  .service-panel__media {
+    flex: 1;
+    height: 100%;
+  }
+
+  .service-panel__body {
+    width: 499px;
+    flex-shrink: 0;
+    padding: var(--space-5);
+    justify-content: space-between;
+  }
+
+  .service-panel__title {
+    line-height: var(--line-height-tight);
+  }
+}
+
+/* =========================================================
+   Menu / dish card
+   ========================================================= */
+
+.dish-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-cream);
+}
+
+.dish-card__media {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.dish-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dish-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-light);
+}
+
+.dish-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  flex: 1;
+}
+
+.dish-card__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dish-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.dish-card__eyebrow {
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-cream-40);
+}
+
+.dish-card__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+}
+
+.dish-card__desc {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  color: var(--color-text-on-cream);
+}
+
+.dish-card__price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-text-on-cream-20);
+  padding-top: var(--space-3);
+  margin-top: auto;
+}
+
+.dish-card__price {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.dish-card__price-amount {
+  color: var(--color-text-on-cream);
+}
+
+.dish-card__price-unit {
+  color: var(--color-text-on-cream-70);
+}
+
+.dish-card__price--featured .dish-card__price-amount {
+  font-size: var(--font-size-price-featured);
+  font-weight: var(--font-weight-body-medium);
+}
+
+/* Mobile-only: .dish-card__price (both the plain "275 г." and the
+   --featured "175 грн." wrapper) was staying at the base body size while
+   .dish-card__price-amount jumps to the larger featured size inside the
+   --featured variant — the two price groups in the same row read as
+   mismatched weight. Matching the wrapper to that same size unifies both
+   groups and keeps each wrapper's own amount/unit consistent together. */
+@media (max-width: 1023.98px) {
+  .dish-card__price {
+    font-size: var(--font-size-price-featured);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dish-card__media {
+    height: 224px;
+  }
+}
+
+/* =========================================================
+   Icon feature card
+   ========================================================= */
+
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-text-on-cream-20);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  min-height: 286px;
+}
+
+.feature-card {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.feature-card:hover,
+.feature-card:focus-visible {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+  outline: none;
+}
+
+.feature-card__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  max-width: 75%;
+}
+
+.feature-card__desc {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  max-width: 100%;
+}
+
+.feature-card__icon {
+  position: absolute;
+  right: -30px; /* mobile: Figma overflows the 388px card by 30px, clipped by .feature-card's overflow:hidden */
+  top: 146px;
+  width: 180px;
+  height: 180px;
+  color: currentColor;
+}
+
+@media (min-width: 1024px) {
+  .feature-card__desc {
+    max-width: 75%;
+  }
+
+  .feature-card__icon {
+    right: 0;
+  }
+}
+
+/* =========================================================
+   Portfolio card
+   ========================================================= */
+
+.portfolio-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.portfolio-card__media {
+  position: relative;
+  height: 260px;
+  overflow: hidden;
+}
+
+.portfolio-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Premium hover: a slow, subtle push-in rather than a snappy generic
+     scale — deliberately much slower than the button/nav hover language
+     elsewhere, since this plays over a large photograph. */
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-card__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-light);
+  transition: opacity 0.5s ease;
+}
+
+/* Layered hover, only where pointer:fine (touch has no hover state to
+   accidentally get stuck "on") — image push-in + overlay deepening +
+   caption micro-shift + an arrow that draws itself in, communicating
+   "clickable" without touching card size/layout/typography. Applied via
+   :hover/:focus-visible on the card itself (now the <a>, see index.html),
+   and gated so a drag never triggers it as a false "hover, so I'm about
+   to be clicked" cue — the drag/click disambiguation itself lives in
+   main.js's portfolio slider (movement-threshold click suppression), not
+   here; this is purely visual. */
+@media (hover: hover) and (pointer: fine) {
+  .portfolio-card:hover .portfolio-card__media img,
+  .portfolio-card:focus-visible .portfolio-card__media img {
+    transform: scale(1.06);
+  }
+
+  .portfolio-card:hover .portfolio-card__media::after,
+  .portfolio-card:focus-visible .portfolio-card__media::after {
+    opacity: 0.55;
+  }
+
+  .portfolio-card:hover .portfolio-card__caption,
+  .portfolio-card:focus-visible .portfolio-card__caption {
+    transform: translateX(6px);
+  }
+
+  .portfolio-card:hover .portfolio-card__caption::after,
+  .portfolio-card:focus-visible .portfolio-card__caption::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.portfolio-card__caption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-dark);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portfolio-card__caption::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  /* mask (not background-image) so this reads in currentColor — the
+     source SVG's own hardcoded dark stroke would be invisible against
+     this section's dark background if used as a plain image/background. */
+  background-color: currentColor;
+  -webkit-mask-image: url('../assets/icons/icon-arrow-next.svg');
+  mask-image: url('../assets/icons/icon-arrow-next.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 1024px) {
+  .portfolio-card__media {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+/* =========================================================
+   Testimonial row
+   ========================================================= */
+
+.testimonial {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-text-on-cream-20);
+  overflow: hidden;
+}
+
+.testimonial__media {
+  position: relative;
+  height: 220px;
+}
+
+.testimonial__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.testimonial__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+
+/* Mobile-only: spacing between .testimonial__body's children is
+   controlled entirely by the flex `gap` below — name/rating must carry
+   no margin of their own, or it would stack on top of the gap and
+   double the spacing. Desktop keeps its own uniform --space-2 gap (see
+   the 1024px override below) untouched. */
+@media (max-width: 1023.98px) {
+  .testimonial__body {
+    gap: 8px;
+  }
+
+  .testimonial__name {
+    margin: 0;
+  }
+
+  .testimonial__rating {
+    margin: 0;
+  }
+}
+
+.testimonial__name {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+.testimonial__rating {
+  font-size: var(--font-size-rating);
+  color: var(--color-accent-rust);
+  letter-spacing: 2px;
+}
+
+.testimonial__quote {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+}
+
+@media (min-width: 1024px) {
+  .testimonial__quote {
+    max-width: 334px;
+  }
+
+  .testimonial__body {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonial {
+    flex-direction: row;
+    height: 236px;
+  }
+
+  .testimonial__media {
+    width: 286px;
+    height: 100%;
+    flex-shrink: 0;
+  }
+}
+
+/* =========================================================
+   Contact info tile
+   ========================================================= */
+
+.contact-tile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+  background-color: var(--color-dark-olive);
+}
+
+.contact-tile {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  /* Phone/email/location tiles are a single <a> covering the whole card;
+     the social tile stays a plain <div> (it holds two separate links), so
+     this hover/focus treatment is written generically enough to suit both. */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-tile:hover,
+.contact-tile:focus-visible,
+.contact-tile:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(51, 55, 41, 0.16);
+  z-index: 1;
+}
+
+.contact-tile:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.contact-tile__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+.contact-tile__value {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+}
+
+.contact-tile__social-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.contact-tile__social-link {
+  position: relative;
+  width: fit-content;
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.contact-tile__social-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.contact-tile__social-link:hover::after,
+.contact-tile__social-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.contact-tile__icon {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+}
+
+/* Figma mobile: each tile's icon overflows its own edges by a slightly
+   different amount (hand-placed, not a uniform grid position). */
+@media (max-width: 1023.98px) {
+  .contact-tile:nth-child(1) .contact-tile__icon {
+    right: -14px;
+    bottom: -22px;
+  }
+
+  .contact-tile:nth-child(2) .contact-tile__icon {
+    right: -14px;
+    bottom: -32px;
+  }
+
+  .contact-tile:nth-child(3) .contact-tile__icon {
+    right: -24px;
+    bottom: -22.33px;
+  }
+
+  .contact-tile:nth-child(4) .contact-tile__icon {
+    right: -23px;
+    bottom: -19.67px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .contact-tile-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+    background-color: transparent;
+  }
+
+  .contact-tile {
+    min-height: 216px;
+  }
+
+  .contact-tile__icon {
+    right: 0;
+    bottom: -16px;
+  }
+}
+
+/* =========================================================
+   Form fields
+   ========================================================= */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* base.css's generic `label` rule sets font-weight-body-semibold (600) —
+   combined with uppercase + letter-spacing this reads noticeably heavy at
+   mobile sizes. Lightened here (mobile only); desktop keeps the semibold
+   weight untouched. */
+@media (max-width: 1023.98px) {
+  .form-field__label {
+    font-weight: var(--font-weight-body-medium);
+  }
+}
+
+.form-field__input {
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.form-field__input:hover {
+  border-color: var(--color-text-on-cream-40);
+}
+
+/* :focus-visible below is declared after this and wins on equal
+   specificity when it also matches, so a real keyboard focus still gets
+   a clearly visible ring — this rule only removes the browser's own
+   default outline for the (rarer, non-keyboard) case where :focus
+   matches but :focus-visible does not. */
+.form-field__input:focus {
+  outline: none;
+}
+
+.form-field__input:focus-visible {
+  outline: 2px solid var(--color-dark-olive);
+  outline-offset: 2px;
+  border-color: var(--color-dark-olive);
+}
+
+/* =========================================================
+   Quick contact form ("Швидка заявка")
+   ========================================================= */
+
+.quick-form {
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quick-form__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-bold);
+  font-size: var(--font-size-h2);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-heading-display);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+}
+
+@media (min-width: 1024px) {
+  .quick-form__title {
+    font-weight: var(--font-weight-heading-regular);
+  }
+}
+
+.quick-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quick-form__submit {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-heading-regular);
+  letter-spacing: var(--letter-spacing-wide);
+  padding: var(--space-2) var(--space-4);
+}
+
+.quick-form__status {
+  padding: var(--space-2);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  border: 1px solid transparent;
+}
+
+.quick-form__status[hidden] {
+  display: none;
+}
+
+.quick-form__status--success {
+  border-color: var(--color-dark-olive);
+  color: var(--color-dark-olive);
+}
+
+.quick-form__status--error {
+  border-color: var(--color-accent-rust);
+  color: var(--color-accent-rust);
+}
+
+@media (min-width: 1024px) {
+  .quick-form {
+    padding: var(--space-5);
+    gap: var(--space-5);
+  }
+
+  .quick-form__submit {
+    padding: 20px var(--space-5);
+  }
+}
+
+/* =========================================================
+   Global contact/quote modal ("Швидка заявка")
+
+   One shared instance per page (duplicated markup, same as the header/
+   footer — this project has no build step to include a partial once),
+   opened from any CTA via a plain data-modal-open="contact" attribute
+   (see main.js's delegated click handler) rather than a per-button click
+   handler. The .quick-form inside is the EXACT same form/markup/ids used
+   everywhere else on the site, so the existing phone mask
+   (#home-phone) and quick-form validation (main.js) work on it completely
+   unmodified — this component only owns the show/hide chrome around it.
+   ========================================================= */
+
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  background-color: var(--color-overlay-scrim);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+}
+
+.contact-modal[hidden] {
+  display: none;
+}
+
+.contact-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.contact-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - var(--space-4));
+  overflow-y: auto;
+  transform: translateY(24px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+@supports (height: 100dvh) {
+  .contact-modal__panel {
+    max-height: calc(100dvh - var(--space-4));
+  }
+}
+
+.contact-modal.is-open .contact-modal__panel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.contact-modal__panel .quick-form {
+  width: 100%;
+}
+
+.contact-modal__close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-text-on-cream);
+}
+
+.contact-modal__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Explicit product requirement for this popup specifically: no visible
+   browser/native focus outline on its inputs at all — not even the
+   site-wide .form-field__input:focus-visible ring used everywhere else
+   (that rule also sets border-color on focus, which is left untouched
+   here; only `outline` is suppressed). Dimensions/padding/typography/
+   colors/border are all inherited unchanged from .form-field__input. */
+.contact-modal__panel .form-field__input:focus,
+.contact-modal__panel .form-field__input:focus-visible {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-modal,
+  .contact-modal__panel {
+    transition: none;
+  }
+}

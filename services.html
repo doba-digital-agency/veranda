@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Послуги кейтерингу — банкет, фуршет, кейтеринг-бокси, кенді-бар | Veranda by Voloshyn</title>
+<meta name="description" content="Чотири формати кейтерингу Veranda by Voloshyn: банкет, фуршет, кейтеринг-бокси та кенді-бар/коктейль-бар. Оберіть формат під ваш захід — розрахуємо вартість під кількість гостей і сценарій.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;700&family=Lato:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__bar">
+    <a class="site-header__logo" href="index.html">
+      <img class="site-header__logo-image" src="assets/images/logo-mark.png" alt="Veranda by Voloshyn">
+    </a>
+    <nav class="site-header__nav" aria-label="Основна навігація">
+      <ul class="site-header__nav-list">
+        <li><a class="site-header__nav-link" href="services.html">Послуги</a></li>
+        <li><a class="site-header__nav-link" href="menu.html">Меню</a></li>
+        <li><a class="site-header__nav-link" href="about.html">Про нас</a></li>
+        <li><a class="site-header__nav-link" href="portfolio.html">Портфоліо</a></li>
+        <li><a class="site-header__nav-link" href="contacts.html">Контакти</a></li>
+      </ul>
+    </nav>
+    <button class="site-header__cta btn btn--primary" type="button" data-modal-open="contact">Отримати прорахунок</button>
+    <div class="site-header__mobile-actions">
+      <button class="site-header__mobile-cta btn btn--primary" type="button" data-modal-open="contact">Прорахунок</button>
+      <button class="site-header__menu-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Відкрити меню">
+        <img class="site-header__menu-icon" src="assets/icons/icon-menu-hamburger.svg" alt="">
+      </button>
+    </div>
+  </div>
+  <div class="site-header__mobile-panel" id="mobile-nav" data-mobile-nav>
+    <button class="site-header__mobile-panel-close" type="button" data-nav-close aria-label="Закрити меню">
+      <span aria-hidden="true" style="color:#e9e4da;font-size:28px;line-height:1;">&times;</span>
+    </button>
+    <nav aria-label="Мобільна навігація">
+      <ul class="site-header__mobile-nav-list">
+        <li><a class="site-header__mobile-nav-link" href="services.html">Послуги</a></li>
+        <li><a class="site-header__mobile-nav-link" href="menu.html">Меню</a></li>
+        <li><a class="site-header__mobile-nav-link" href="about.html">Про нас</a></li>
+        <li><a class="site-header__mobile-nav-link" href="portfolio.html">Портфоліо</a></li>
+        <li><a class="site-header__mobile-nav-link" href="contacts.html">Контакти</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero hero--services" data-hero>
+    <div class="hero__media" data-hero-media>
+      <picture>
+        <source media="(min-width: 1024px)" srcset="assets/images/services-hero-canape-rolls-desktop.jpg">
+        <img src="assets/images/services-hero-canape-rolls-mobile.png" alt="Канапе-ролети з лососем на фуршетному столі Veranda by Voloshyn">
+      </picture>
+    </div>
+    <div class="hero__content" data-hero-content>
+      <h1 class="hero__title" id="hero-title">Кейтеринг під будь&#8209;який формат заходу</h1>
+      <div class="hero__meta">
+        <p class="hero__meta-text" id="services-hero-lede">Ми пропонуємо чотири формати обслуговування — від класичного банкету до легких кейтеринг-боксів. Кожен формат адаптується під кількість гостей, бюджет і сценарій заходу.</p>
+        <button class="btn btn--secondary btn--on-dark" type="button" data-modal-open="contact">Замовити кейтеринг</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="services-heading">
+    <div class="section-heading">
+      <h2 class="section-heading__title" id="services-heading">Оберіть формат<br class="u-br-mobile"> під ваш захід</h2>
+    </div>
+
+    <div class="service-detail-list">
+      <article class="service-detail">
+        <div class="service-detail__media">
+          <img src="assets/images/service-banquet-longtable.jpg" alt="Сервірований стіл на банкеті Veranda by Voloshyn">
+        </div>
+        <div class="service-detail__body">
+          <div class="service-panel__content">
+            <h3 class="service-panel__title">Банкет</h3>
+            <p class="service-panel__desc">Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.</p>
+            <div class="service-panel__tags">
+              <span class="service-panel__tag">від 20 гостей</span>
+              <span class="service-panel__tag">повний сервіс</span>
+            </div>
+          </div>
+          <ul class="service-detail__list">
+            <li>Розробка меню під захід</li>
+            <li>Сервірування столів і посуд</li>
+            <li>Офіціанти на весь час заходу</li>
+            <li>Подача страв по ходу програми</li>
+          </ul>
+          <div class="service-detail__price-row">
+            <p class="service-detail__price-label">Вартість</p>
+            <p class="service-detail__price-value">від 850 грн. / гостя</p>
+          </div>
+          <button class="btn btn--inverse" type="button" data-modal-open="contact">Отримати прорахунок</button>
+        </div>
+      </article>
+
+      <article class="service-detail service-detail--reverse">
+        <div class="service-detail__media">
+          <img src="assets/images/service-banquet-longtable.jpg" alt="Фуршетний стіл Veranda by Voloshyn">
+        </div>
+        <div class="service-detail__body">
+          <div class="service-panel__content">
+            <h3 class="service-panel__title">Фуршет</h3>
+            <p class="service-panel__desc">Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.</p>
+            <div class="service-panel__tags">
+              <span class="service-panel__tag">від 20 гостей</span>
+              <span class="service-panel__tag">повний сервіс</span>
+            </div>
+          </div>
+          <ul class="service-detail__list">
+            <li>Розробка меню під захід</li>
+            <li>Сервірування столів і посуд</li>
+            <li>Офіціанти на весь час заходу</li>
+            <li>Подача страв по ходу програми</li>
+          </ul>
+          <div class="service-detail__price-row">
+            <p class="service-detail__price-label">Вартість</p>
+            <p class="service-detail__price-value">від 850 грн. / гостя</p>
+          </div>
+          <button class="btn btn--inverse" type="button" data-modal-open="contact">Отримати прорахунок</button>
+        </div>
+      </article>
+
+      <article class="service-detail">
+        <div class="service-detail__media">
+          <img src="assets/images/service-banquet-longtable.jpg" alt="Кейтеринг-бокси Veranda by Voloshyn">
+        </div>
+        <div class="service-detail__body">
+          <div class="service-panel__content">
+            <h3 class="service-panel__title">Кейтеринг-бокси</h3>
+            <p class="service-panel__desc">Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.</p>
+            <div class="service-panel__tags">
+              <span class="service-panel__tag">від 20 гостей</span>
+              <span class="service-panel__tag">повний сервіс</span>
+            </div>
+          </div>
+          <ul class="service-detail__list">
+            <li>Розробка меню під захід</li>
+            <li>Сервірування столів і посуд</li>
+            <li>Офіціанти на весь час заходу</li>
+            <li>Подача страв по ходу програми</li>
+          </ul>
+          <div class="service-detail__price-row">
+            <p class="service-detail__price-label">Вартість</p>
+            <p class="service-detail__price-value">від 850 грн. / гостя</p>
+          </div>
+          <button class="btn btn--inverse" type="button" data-modal-open="contact">Отримати прорахунок</button>
+        </div>
+      </article>
+
+      <article class="service-detail service-detail--reverse">
+        <div class="service-detail__media">
+          <img src="assets/images/service-banquet-longtable.jpg" alt="Кенді-бар та коктейль-бар Veranda by Voloshyn">
+        </div>
+        <div class="service-detail__body">
+          <div class="service-panel__content">
+            <h3 class="service-panel__title">Кенді-бар / коктейль-бар</h3>
+            <p class="service-panel__desc">Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.</p>
+            <div class="service-panel__tags">
+              <span class="service-panel__tag">від 20 гостей</span>
+              <span class="service-panel__tag">повний сервіс</span>
+            </div>
+          </div>
+          <ul class="service-detail__list">
+            <li>Розробка меню під захід</li>
+            <li>Сервірування столів і посуд</li>
+            <li>Офіціанти на весь час заходу</li>
+            <li>Подача страв по ходу програми</li>
+          </ul>
+          <div class="service-detail__price-row">
+            <p class="service-detail__price-label">Вартість</p>
+            <p class="service-detail__price-value">від 850 грн. / гостя</p>
+          </div>
+          <button class="btn btn--inverse" type="button" data-modal-open="contact">Отримати прорахунок</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--dark" aria-labelledby="process-heading">
+    <div class="section-heading section-heading--on-dark">
+      <h2 class="section-heading__title" id="process-heading">Як ми працюємо</h2>
+    </div>
+    <div class="process-grid">
+      <article class="process-card">
+        <div class="process-card__icon-row">
+          <img class="process-card__icon" src="assets/icons/icon-phone-outline.svg" alt="">
+        </div>
+        <div class="process-card__text">
+          <h3 class="process-card__title">Заявка</h3>
+          <p class="process-card__desc">Залишаєте заявку на сайті або дзвоните нам</p>
+        </div>
+      </article>
+      <article class="process-card">
+        <div class="process-card__icon-row">
+          <img class="process-card__icon" src="assets/icons/icon-handshake.svg" alt="">
+        </div>
+        <div class="process-card__text">
+          <h3 class="process-card__title">Узгодження</h3>
+          <p class="process-card__desc">Обговорюємо формат, меню й бюджет заходу</p>
+        </div>
+      </article>
+      <article class="process-card">
+        <div class="process-card__icon-row">
+          <img class="process-card__icon" src="assets/icons/icon-bowl-steam.svg" alt="">
+        </div>
+        <div class="process-card__text">
+          <h3 class="process-card__title">Підготовка</h3>
+          <p class="process-card__desc">Готуємо страви, сервірування та персонал</p>
+        </div>
+      </article>
+      <article class="process-card">
+        <div class="process-card__icon-row">
+          <img class="process-card__icon" src="assets/icons/icon-fork-knife.svg" alt="">
+        </div>
+        <div class="process-card__text">
+          <h3 class="process-card__title">Захід</h3>
+          <p class="process-card__desc">Обслуговуємо захід від початку до кінця</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="cta-banner cta-banner--services" aria-labelledby="cta-banner-heading">
+    <div class="cta-banner__media">
+      <img src="assets/images/services-cta-berries-bowls.png" alt="">
+    </div>
+    <h2 class="hero__title" id="cta-banner-heading">Не визначились із форматом?</h2>
+    <p class="cta-banner__text">Розкажіть про ваш захід — підберемо оптимальний варіант і розрахуємо вартість</p>
+    <button class="btn btn--inverse" type="button" data-modal-open="contact">Отримати прорахунок</button>
+  </section>
+
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <p class="site-footer__brand-name">Veranda by Voloshyn</p>
+      <p class="site-footer__tagline">Кейтеринг, який створює атмосферу</p>
+      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.png" alt="">
+    </div>
+    <div class="site-footer__columns">
+      <img class="site-footer__mobile-decor" src="assets/images/logo.png" alt="" aria-hidden="true">
+      <div class="site-footer__column">
+        <p class="site-footer__column-title">Навігація</p>
+        <ul class="site-footer__column-list">
+          <li><a class="site-footer__column-link" href="services.html">Послуги</a></li>
+          <li><a class="site-footer__column-link" href="menu.html">Меню</a></li>
+          <li><a class="site-footer__column-link" href="about.html">Про нас</a></li>
+          <li><a class="site-footer__column-link" href="portfolio.html">Портфоліо</a></li>
+          <li><a class="site-footer__column-link" href="contacts.html">Контакти</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__column">
+        <p class="site-footer__column-title">Контакти</p>
+        <ul class="site-footer__column-list">
+          <li><a class="site-footer__column-link" href="https://www.google.com/maps/search/?api=1&query=%D0%9C%D1%83%D0%BA%D0%B0%D1%87%D0%B5%D0%B2%D0%BE%2C%20%D0%B2%D1%83%D0%BB.%20%D0%93%D0%BE%D1%80%D0%BE%D0%B4%D0%BE%D1%86%D1%8C%D0%BA%D0%B0%2C%2032" target="_blank" rel="noopener">вул. Городоцька, 32, Мукачево</a></li>
+          <li><a class="site-footer__column-link" href="tel:+380671234567">+38 067 123 45 67</a></li>
+          <li><a class="site-footer__column-link" href="mailto:info@verandavoloshyn.ua">info@verandavoloshyn.ua</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__column">
+        <p class="site-footer__column-title">Соцмережі</p>
+        <ul class="site-footer__column-list">
+          <li><a class="site-footer__column-link" href="#">Instagram</a></li>
+          <li><a class="site-footer__column-link" href="#">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__decor" aria-hidden="true">
+      <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--a">
+        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+      </div>
+      <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--b">
+        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+      </div>
+    </div>
+  </div>
+  <div class="site-footer__bottom">
+    <p>&copy; 2026 Veranda by Voloshyn</p>
+    <p>Розроблено: <a class="site-footer__credits-name" href="https://doba.digital/" target="_blank" rel="noopener noreferrer">Doba Digital</a></p>
+  </div>
+</footer>
+
+<div class="contact-modal" data-modal="contact" aria-hidden="true" hidden>
+  <div class="contact-modal__panel" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+    <button class="contact-modal__close" type="button" data-modal-close aria-label="Закрити форму">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <form class="quick-form" novalidate data-quick-form>
+      <h3 class="quick-form__title" id="contact-modal-title">Швидка заявка</h3>
+      <div class="quick-form__fields">
+        <div class="form-field">
+          <label class="form-field__label" for="modal-name">Ім'я</label>
+          <input class="form-field__input" id="modal-name" name="name" type="text" placeholder="Ваше ім'я" autocomplete="name" required>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="modal-phone">Телефон</label>
+          <input class="form-field__input" id="modal-phone" name="phone" type="tel" placeholder="+380" autocomplete="tel" data-phone-mask required>
+        </div>
+      </div>
+      <button class="btn btn--primary btn--block quick-form__submit" type="submit">Замовити дзвінок</button>
+      <p class="quick-form__status quick-form__status--success" hidden data-form-success>Дякуємо! Ми зв'яжемось з вами найближчим часом.</p>
+      <p class="quick-form__status quick-form__status--error" hidden data-form-error>Будь ласка, перевірте правильність заповнення полів.</p>
+    </form>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/botanical-animation.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script><script src="js/scroll-experience.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+:root {
+  /* ===== Colors ===== */
+  --color-cream: #e9e4da;
+  --color-dark-olive: #333729;
+
+  --color-text-on-cream: #333729;
+  --color-text-on-cream-70: rgba(51, 55, 41, 0.7);
+  --color-text-on-cream-40: rgba(51, 55, 41, 0.4);
+  --color-text-on-cream-20: rgba(51, 55, 41, 0.2);
+
+  --color-text-on-dark: #e9e4da;
+  --color-text-on-dark-70: rgba(233, 228, 218, 0.7);
+  --color-text-on-dark-60: rgba(233, 228, 218, 0.6);
+  --color-text-on-dark-20: rgba(233, 228, 218, 0.2);
+
+  /* Confirmed in Phase 3 while inspecting components */
+  --color-text-on-cream-10: rgba(51, 55, 41, 0.1);   /* mobile service-card border */
+  --color-accent-rust: #a85e31;                       /* testimonial star rating */
+  --overlay-gradient-light: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
+  --overlay-gradient-strong: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
+  --overlay-gradient-hero: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
+  --overlay-tint-cta-mobile: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22));
+  --color-overlay-scrim: rgba(51, 55, 41, 0.7); /* global contact-modal backdrop */
+  --color-text-quote: #1a1a1a;        /* FLAGGED: About page pull-quote, Figma-confirmed one-off */
+  --color-text-quote-attribution: #7a7568; /* FLAGGED: About page pull-quote attribution */
+
+  /* ===== Spacing scale (8px base, Figma-confirmed desktop values) ===== */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 56px;
+  --space-7: 64px;
+  --space-8: 100px;
+  --space-9: 120px;
+
+  /* Semantic aliases (desktop, confirmed in Figma) */
+  --space-gutter-desktop: var(--space-4);      /* 32px page/section side padding */
+  --space-section-y-desktop: var(--space-8);   /* 100px section top/bottom padding */
+  --space-card-gap: var(--space-3);            /* 24px, common internal card padding/gap */
+
+  /* Figma's Desktop frame is exactly 1440px; content must stop growing past it.
+     Applied as horizontal padding (not a wrapper max-width) so a full-bleed
+     section background still paints edge-to-edge under the extra padding
+     while the content inside stays capped at 1440px and centered. */
+  --page-max-width: 1440px;
+  --gutter-desktop-centered: max(var(--space-gutter-desktop), calc((100% - var(--page-max-width)) / 2 + var(--space-gutter-desktop)));
+  /* Same centering, but for elements meant to sit flush with the 1440 frame edge
+     (e.g. the header's CTA button) rather than inset by the normal gutter. */
+  --edge-desktop-centered: max(0px, calc((100% - var(--page-max-width)) / 2));
+
+  /* Mobile values confirmed directly in Figma (Home Mobile, 428px frame) but
+     outside the approved 8/16/24/32/40/56/64/100/120 scale. Kept as their own
+     tokens rather than rounded, per explicit instruction not to force-fit them. */
+  --space-gutter-mobile: 20px;      /* FLAGGED: not in approved scale (Figma-confirmed) */
+  --space-section-y-mobile: 60px;   /* FLAGGED: not in approved scale (Figma-confirmed) */
+
+  /* Additional Phase 3 component values confirmed in Figma but outside the
+     approved 8/16/24/32/40/56/64/100/120 scale. Kept as their own flagged
+     tokens rather than force-rounded. */
+  --space-tag-x: 12px;              /* FLAGGED: service-panel tag horizontal padding */
+  --space-panel-gap-mobile: 20px;   /* FLAGGED: mobile service-panel body internal gap */
+  --space-menu-item-gap-mobile: 12px; /* FLAGGED: mobile menu-item title/price/desc stack gap */
+  --space-menu-item-tight: 4px;        /* FLAGGED: menu-item desc-to-weight gap, both breakpoints */
+
+  /* ===== Typography: font families ===== */
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Lato', sans-serif;
+
+  /* ===== Typography: weights ===== */
+  --font-weight-heading-light: 300;
+  --font-weight-heading-regular: 400;
+  --font-weight-heading-bold: 700;
+  --font-weight-body-regular: 400;
+  --font-weight-body-medium: 500;
+  --font-weight-body-semibold: 600;
+
+  /* ===== Typography: sizes =====
+     h1 and h2 are fluid (clamp) between the Figma-confirmed mobile (428px)
+     and desktop (1440px) values. h3, body, nav/button, caption, and label are
+     confirmed identical at both breakpoints, so they are fixed sizes. */
+  --font-size-h1: clamp(2.25rem, 1.087rem + 4.35vw, 5rem);      /* 36px -> 80px */
+  --font-size-h2: clamp(1.75rem, 1.433rem + 1.19vw, 2.5rem);    /* 28px -> 40px */
+  --font-size-h3: 1.5rem;      /* 24px, fixed */
+  --font-size-body: 1rem;      /* 16px, fixed */
+  --font-size-nav-button: 1rem;   /* 16px, fixed */
+  --font-size-caption: 0.875rem;  /* 14px, fixed */
+  --font-size-label: 0.875rem;    /* 14px, fixed */
+  --font-size-price-featured: 1.25rem;  /* 20px, confirmed on featured dish price */
+  --font-size-rating: 0.6875rem;        /* 11px, confirmed on testimonial star rating */
+
+  /* ===== Typography: letter-spacing =====
+     -0.02em (-2%) is the dominant site-wide value confirmed on headings, body
+     text, nav, buttons, and captions at both breakpoints. Form field labels
+     are a confirmed exception using positive tracking instead. */
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-wide: 0.01em;   /* form field labels only */
+
+  /* ===== Typography: line-height =====
+     h3/nav/button use leading-none (1) identically at both breakpoints.
+     Large display headings (h1/h2) are leading-none on desktop in Figma but
+     leading-[1.1]/leading-normal on mobile; 1.1 is used as one practical
+     token so multi-line wrapped headings do not clip on narrow viewports. */
+  --line-height-tight: 1;
+  --line-height-heading-display: 1.1;
+  --line-height-body: 1.5;
+}

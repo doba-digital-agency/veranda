@@ -1,0 +1,2234 @@
+/*
+  Page-level structural components: Header and Footer.
+
+  Breakpoint note: Figma only defines 1440 (desktop) and 428 (mobile) frames.
+  There is no tablet frame, so 1024px is used here as our own judgment-call
+  cutover between the mobile (logo + compact CTA + hamburger) header and the
+  full desktop nav. CSS custom properties cannot be read inside @media
+  conditions, so this breakpoint is a literal value, repeated where needed.
+*/
+
+/* =========================================================
+   Site Header
+   ========================================================= */
+
+.site-header {
+  position: relative;
+  background-color: var(--color-cream);
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-gutter-mobile);
+}
+
+.site-header__logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+.site-header__logo-image {
+  width: 34px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Desktop inline nav: hidden until the desktop breakpoint */
+.site-header__nav {
+  display: none;
+}
+
+.site-header__nav-list {
+  display: flex;
+  align-items: center;
+  gap: 68px;
+}
+
+.site-header__nav-link {
+  position: relative;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-nav-button);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+}
+
+.site-header__nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.site-header__nav-link:hover::after,
+.site-header__nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Full desktop CTA: hidden on mobile */
+.btn.site-header__cta {
+  display: none;
+}
+
+/* Compact mobile CTA + hamburger group */
+.site-header__mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn.site-header__mobile-cta {
+  padding: var(--space-1) 14px;
+  font-size: var(--font-size-nav-button);
+}
+
+.site-header__menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.site-header__menu-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Off-canvas mobile nav panel */
+.site-header__mobile-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-gutter-mobile);
+  background-color: var(--color-dark-olive);
+  transform: translateX(100%);
+  visibility: hidden;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s;
+}
+
+.site-header__mobile-panel.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  opacity: 1;
+}
+
+.site-header__mobile-panel-close {
+  align-self: flex-end;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-header__mobile-panel-close-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.site-header__mobile-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.site-header__mobile-nav-link {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-dark);
+}
+
+.site-header__mobile-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.site-header__mobile-nav-link:hover::after,
+.site-header__mobile-nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (min-width: 1024px) {
+  .site-header__bar {
+    padding: 0 var(--edge-desktop-centered) 0 var(--gutter-desktop-centered);
+    min-height: 96px;
+  }
+
+  .site-header__logo-image {
+    width: 40px;
+    height: 48px;
+  }
+
+  .site-header__nav {
+    display: block;
+  }
+
+  .btn.site-header__cta {
+    display: inline-flex;
+    height: 96px;
+    padding: 0 var(--space-4);
+  }
+
+  .site-header__mobile-actions {
+    display: none;
+  }
+
+  .site-header__mobile-panel {
+    display: none;
+  }
+}
+
+/* =========================================================
+   Site Footer
+   ========================================================= */
+
+.site-footer {
+  background-color: var(--color-dark-olive);
+  border-top: 1px solid var(--color-text-on-dark-20);
+  color: var(--color-text-on-dark);
+  overflow: hidden;
+  position: relative;
+}
+
+.site-footer__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-gutter-mobile) var(--space-5);
+}
+
+.site-footer__brand-name {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-bold);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.site-footer__tagline {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-dark-60);
+  margin-bottom: var(--space-2);
+}
+
+.site-footer__logo-decor {
+  width: 72px;
+  height: 88px;
+  object-fit: contain;
+  opacity: 0.3;
+}
+
+.site-footer__columns {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.site-footer__mobile-decor {
+  position: absolute;
+  left: 156px;
+  top: -0.33px;
+  width: 411px;
+  height: 595px;
+  max-width: none;
+  opacity: 0.2;
+  transform: scaleY(-1) rotate(178.36deg);
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (min-width: 1024px) {
+  .site-footer__mobile-decor {
+    display: none;
+  }
+}
+
+.site-footer__column-title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.site-footer__column-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.site-footer__column-link,
+.site-footer__column-text {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-dark-60);
+}
+
+.site-footer__column-link {
+  position: relative;
+  display: inline-block;
+  transition: color 0.25s ease;
+}
+
+.site-footer__column-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.site-footer__column-link:hover,
+.site-footer__column-link:focus-visible {
+  color: var(--color-text-on-dark);
+}
+
+.site-footer__column-link:hover::after,
+.site-footer__column-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.site-footer__decor {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .site-footer__decor {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .site-footer__decor-flower-wrap {
+    position: absolute;
+    width: 532.531px;
+    height: 666.209px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.2;
+  }
+
+  .site-footer__decor-flower-wrap--a {
+    left: calc(var(--edge-desktop-centered) + 734px);
+    top: 143px;
+  }
+
+  .site-footer__decor-flower-wrap--b {
+    left: calc(var(--edge-desktop-centered) + 514px);
+    top: 253px;
+  }
+
+  .site-footer__decor-flower {
+    width: 395px;
+    height: 584px;
+    flex-shrink: 0;
+  }
+
+  .site-footer__decor-flower-wrap--a .site-footer__decor-flower {
+    transform: rotate(15deg);
+  }
+
+  .site-footer__decor-flower-wrap--b .site-footer__decor-flower {
+    transform: scaleY(-1) rotate(165deg);
+  }
+}
+
+.site-footer__bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-gutter-mobile);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-dark-60);
+}
+
+@media (max-width: 1023.98px) {
+  .site-footer__bottom {
+    border-top: 1px solid var(--color-text-on-dark-20);
+    padding: 20px var(--space-gutter-mobile) var(--space-6);
+    margin-top: 0;
+  }
+}
+
+.site-footer__credits-name {
+  position: relative;
+  display: inline-block;
+  font-weight: var(--font-weight-body-medium);
+  color: var(--color-text-on-dark);
+}
+
+/* Same animated-underline hover language already used everywhere else in
+   the footer (.site-footer__column-link) — reused here rather than
+   inventing a new hover treatment, and it never shows at rest. */
+.site-footer__credits-name::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+
+.site-footer__credits-name:hover::after,
+.site-footer__credits-name:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (min-width: 1024px) {
+  .site-footer__inner {
+    flex-direction: row;
+    gap: 220px;
+    padding: var(--space-7) var(--gutter-desktop-centered) 0;
+  }
+
+  .site-footer__logo-decor {
+    width: 124px;
+    height: 149px;
+    opacity: 0.4;
+  }
+
+  .site-footer__columns {
+    flex-direction: row;
+    gap: 140px;
+  }
+
+  .site-footer__bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--gutter-desktop-centered);
+    margin-top: 120px;
+  }
+}
+
+/* =========================================================
+   Generic section padding (page-level, reused across pages)
+   ========================================================= */
+
+.section {
+  padding: var(--space-section-y-mobile) var(--space-gutter-mobile);
+}
+
+.section--dark {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding: var(--space-section-y-desktop) var(--gutter-desktop-centered);
+  }
+}
+
+/* =========================================================
+   Home: Hero
+   ========================================================= */
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-height: 560px;
+  padding: 48px var(--space-gutter-mobile); /* Figma mobile: py-48px, not on the 8px scale */
+  overflow: hidden;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+
+.hero__media img {
+  /* Figma mobile crop over-zooms beyond a plain "cover" fit, so it's reproduced
+     with the same absolute percentage transform Figma exports rather than object-fit. */
+  position: absolute;
+  left: -8.71%;
+  top: -108.04%;
+  width: 211.97%;
+  height: 216.01%;
+  max-width: none;
+}
+
+@media (min-width: 1024px) {
+  .hero__media img {
+    position: static;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: 50% 83%;
+  }
+}
+
+.hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-hero);
+}
+
+/* Home's hero reuses ONE source photo for both crops, so its mobile
+   branch above fakes an over-zoomed mobile crop via absolute
+   left/top/width/height percentages tuned to that specific image. Pages
+   with their own dedicated mobile-crop asset (see the <picture> in
+   services.html) don't need that hack — plain cover fit at every size
+   reproduces the already-correct Figma export directly. Two classes
+   beats the single-class mobile rule's specificity regardless of source
+   order, so this simply wins without needing !important. */
+.hero--services .hero__media img {
+  position: static;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+/* Figma's desktop hero frame (2155:1237) doesn't use a plain cover fit for
+   this photo — it positions the same oversized, offset image via literal
+   percentages (h-[230.22%] left-0 top-[-80.83%] w-full) to land its focal
+   point (the canapé tray) in a specific spot rather than wherever cover's
+   default centering would put it. Reproduced verbatim rather than
+   approximated with object-position, and expressed as percentages of this
+   own element's box so it stays correct regardless of the section's
+   rendered height. Mobile keeps the plain cover fit above — Figma's mobile
+   hero banner (2206:2) uses object-cover directly, no offset hack. */
+@media (min-width: 1024px) {
+  .hero--services .hero__media img {
+    position: absolute;
+    left: 0;
+    top: -80.83%;
+    width: 100%;
+    height: 230.22%;
+    max-width: none;
+    object-fit: unset;
+  }
+}
+
+/* Menu's hero (Figma 2206:500 desktop / 2206:509 mobile) reuses the SAME
+   source photo at both breakpoints (confirmed identical asset hash) with
+   the same percentage-transform crop technique at every width — no
+   mobile/desktop split needed here, unlike Home's or Services' hero. */
+/* Was originally reproduced with the same literal-percentage-transform
+   technique as .hero--services (h-[230.22%] etc, straight from Figma's
+   own export) — but unlike Services' version, this rule was never scoped
+   to desktop-only, and more importantly that technique only reproduces
+   the intended crop AT THE EXACT CONTAINER WIDTH Figma measured it
+   against (1440px): height:230.22% is fixed relative to this section's
+   own fixed 835px min-height, completely independent of viewport width,
+   so at any wider viewport (1920/2560, or full-bleed mobile widths) the
+   image's rendered width kept growing while its height stayed pinned —
+   confirmed via getBoundingClientRect() showing the rendered aspect ratio
+   drifting from ~0.75 (correct, matches the source photo's own 3024×4032
+   natural ratio) up to ~1.32 at 2560px, i.e. visibly stretched/flattened.
+   object-fit:cover has none of that problem: it recomputes the correct
+   crop from the image's real natural size against whatever the container
+   actually renders as, at every width, with no viewport-dependent drift.
+   object-position's 19% vertical figure is derived from Figma's own
+   top:-25.04% offset (translated into the equivalent cover-mode
+   object-position rather than copied as a raw transform) so the same
+   framing (croissants cut off at the very top, canapé table + "МЕНЮ"
+   readable at the bottom) is preserved. */
+.hero--menu .hero__media img {
+  /* Must explicitly reset position/left/top/max-width, not just
+     width/height/object-fit — the generic mobile .hero__media img rule
+     above sets those too, and since this rule doesn't otherwise touch
+     them, cascade resolves each property independently: without this
+     reset the image inherited that rule's position:absolute + a large
+     negative top/left offset (tuned for ITS OWN 211.97%/216.01% oversize
+     hack), which shoved this now-normal-sized image almost entirely
+     outside the visible frame. */
+  position: static;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: 50% 19%;
+}
+
+/* About's hero (Figma 2190:2137 desktop / 2206:373 mobile) uses a plain,
+   un-offset object-fit:cover crop at BOTH breakpoints — unlike Home's
+   over-zoom hack or Services'/Menu's percentage-transform hacks, Figma
+   shows no manual crop adjustment here at all. Each breakpoint gets its
+   own dedicated source photo via <picture> (same technique as Services'
+   hero) instead, so a plain cover fit is already correct everywhere. */
+.hero--about .hero__media img {
+  position: static;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.hero__title {
+  font-size: var(--font-size-h1);
+  color: var(--color-text-on-dark);
+  max-width: 20ch;
+}
+
+/* Home's "Кейтеринг, який створює атмосферу" fits the shared 20ch/650px
+   caps fine, but Services' "Кейтеринг під будь-який формат заходу" is
+   longer and was wrapping onto 4 lines at every breakpoint instead of the
+   Figma-authored 2 ("Кейтеринг під будь-" / "який формат заходу",
+   confirmed identical at both the 428px and 1440px frames). Figma gives
+   this heading its own width per breakpoint (w-full on mobile, 847px on
+   desktop) rather than reusing Home's values, so it needs its own scoped
+   override instead of changing the shared component defaults everyone
+   else already relies on. */
+.hero--services .hero__title {
+  max-width: none;
+}
+
+/* "який формат заходу" (the forced second line, Figma-confirmed identical
+   at the 428px frame) measures ~393px in the actual web font at the
+   shared h1 clamp's 36px mobile floor — wider than the ~335-375px this
+   heading actually has available at 390-428px viewports, so it still
+   wrapped a third line even with the width constraint above removed. Same
+   root cause and same precedent already established on Home's own
+   #menu-heading (see its mobile override further down this file): a word/
+   line measurably wider than its box at the shared floor size, fixed by
+   scoping this ONE instance smaller rather than lowering the shared
+   --font-size-h1 token every other heading on the site still uses. */
+@media (max-width: 1023.98px) {
+  .hero--services #hero-title {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero--services .hero__title {
+    /* Figma's own box is 847px, but that's sized to fit ITS text
+       renderer's metrics for "який формат заходу" at 80px Cormorant
+       Garamond Light — measured directly against the actual web font,
+       Chrome renders that same line about 23px wider (870px), so the
+       literal Figma value wraps the second line here even though it
+       doesn't in Figma. Widened just enough for Chrome's own measured
+       width to fit with a small margin, not shrunk to hit an exact
+       Figma pixel value that a different renderer produced. */
+    max-width: 880px;
+  }
+}
+
+h1.hero__title {
+  font-weight: var(--font-weight-heading-regular); /* Figma mobile hero h1 is Cormorant Medium; Regular 400 is the closest loaded weight */
+}
+
+@media (min-width: 1024px) {
+  h1.hero__title {
+    max-width: 650px;
+    font-weight: var(--font-weight-heading-light);
+  }
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hero__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--color-text-on-dark);
+}
+
+.hero__meta-text {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  max-width: none;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    min-height: 835px;
+    padding: var(--space-7) var(--gutter-desktop-centered);
+  }
+
+  .hero__content {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .hero__meta {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .hero__meta-text {
+    max-width: 279px;
+  }
+}
+
+/* =========================================================
+   Home: Service picker (carousel)
+   ========================================================= */
+
+.service-picker__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.service-picker__index {
+  display: none;
+}
+
+.carousel-nav {
+  display: none;
+}
+
+.carousel-nav__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-nav__btn img {
+  width: 24px;
+  height: 24px;
+}
+
+/* The extracted prev/next SVGs are the same right-pointing glyph (Figma flips
+   the "previous" instance via a layer transform rather than shipping a
+   separate mirrored asset), so the flip is reproduced here instead. */
+.carousel-nav__btn[data-carousel-prev] img {
+  transform: rotate(180deg);
+}
+
+.carousel-nav__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.carousel-nav__btn:focus-visible {
+  outline: 2px solid var(--color-text-on-cream);
+  outline-offset: 2px;
+}
+
+.carousel-nav__btn {
+  transition: transform 0.25s ease;
+}
+
+.carousel-nav__btn img {
+  transition: transform 0.25s ease;
+}
+
+.carousel-nav__btn:hover:not(:disabled),
+.carousel-nav__btn:focus-visible:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.carousel-nav__btn[data-carousel-next]:hover:not(:disabled) img,
+.carousel-nav__btn[data-carousel-next]:focus-visible:not(:disabled) img,
+.carousel-nav__btn[data-portfolio-next]:hover:not(:disabled) img,
+.carousel-nav__btn[data-portfolio-next]:focus-visible:not(:disabled) img {
+  transform: translateX(3px);
+}
+
+.carousel-nav__btn[data-carousel-prev]:hover:not(:disabled) img,
+.carousel-nav__btn[data-carousel-prev]:focus-visible:not(:disabled) img {
+  transform: rotate(180deg) translateX(3px);
+}
+
+.carousel-nav__btn[data-portfolio-prev]:hover:not(:disabled) img,
+.carousel-nav__btn[data-portfolio-prev]:focus-visible:not(:disabled) img {
+  transform: translateX(-3px);
+}
+
+.carousel-progress__segment {
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: background-color 0.2s ease;
+}
+
+.carousel-progress__segment:hover {
+  background-color: var(--color-text-on-cream-40);
+}
+
+.carousel-progress__segment.is-active:hover {
+  background-color: var(--color-text-on-cream);
+}
+
+.service-picker__stage {
+  margin-top: var(--space-4);
+}
+
+.carousel-progress {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.carousel-progress__segment {
+  flex: 1;
+  height: 2px;
+  background-color: var(--color-text-on-cream-20);
+}
+
+.carousel-progress__segment.is-active {
+  background-color: var(--color-text-on-cream);
+}
+
+.carousel-controls-mobile {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.carousel-controls-mobile .carousel-nav__btn {
+  flex: 1;
+  width: auto;
+  border-radius: 70px;
+  border: 1px solid var(--color-text-on-cream-40);
+}
+
+.carousel-controls-mobile .carousel-nav__btn[data-carousel-next] {
+  border-color: var(--color-text-on-cream);
+}
+
+@media (min-width: 1024px) {
+  .service-picker__intro {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .service-picker__index {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-heading-light);
+    font-size: var(--font-size-h2);
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--color-text-on-cream-20);
+  }
+
+  .carousel-nav {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .carousel-nav .carousel-nav__btn {
+    width: 48px;
+    height: 32px;
+  }
+
+  .carousel-controls-mobile {
+    display: none;
+  }
+
+  .carousel-progress {
+    display: none;
+  }
+
+  .service-picker__stage {
+    margin-top: var(--space-6);
+  }
+}
+
+/* =========================================================
+   Home: "Why choose us" feature grid
+   ========================================================= */
+
+.why-us {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.why-us__decor {
+  display: none;
+}
+
+.why-us__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .why-us__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .why-us {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: var(--space-7);
+  }
+
+  .why-us__grid {
+    flex: 1;
+  }
+
+  .why-us__decor {
+    display: block;
+    position: absolute;
+    left: calc(var(--edge-desktop-centered) + 939px);
+    /* This is the FINAL/resting design position (matches the original
+       Figma placement: top:467px in a section whose own natural height is
+       ~788px, i.e. the flower's base intentionally sits 182px below the
+       section's own bottom edge, cropped by .why-us's overflow:hidden —
+       a deliberate "bleeds off the bottom" composition, not a bug).
+       scroll-experience.js's setupWhyUs() measures this natural, resting
+       overflow live via getBoundingClientRect() and animates the flower
+       UP by that exact amount at the start of the pin (fully inside the
+       section, nothing cropped) back down to this resting position (0) by
+       the end of the pin — so the crop only ever appears in the finished
+       composition, never as an accidental crop mid-reveal. */
+    bottom: -182px;
+    width: 356px;
+    height: 503px;
+    opacity: 0.2;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .why-us__intro {
+    flex-shrink: 0;
+    max-width: 459px;
+  }
+}
+
+/* =========================================================
+   Home: Plan-an-event CTA banner
+   ========================================================= */
+
+.cta-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+  min-height: 428px;
+  padding: 64px var(--space-gutter-mobile);
+  overflow: hidden;
+  color: var(--color-text-on-dark);
+}
+
+.cta-banner__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.cta-banner__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cta-banner__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-hero);
+}
+
+@media (max-width: 1023.98px) {
+  /* Mobile-only readability tint, layered on top of the existing hero
+     gradient (not replacing it) — the gradient alone fades from
+     transparent at the top, leaving the upper portion of the image too
+     light behind centered CTA text on narrow screens. Flat + subtle so
+     desktop (already fine) is untouched and the image isn't muddied. */
+  .cta-banner__media::after {
+    background: var(--overlay-tint-cta-mobile), var(--overlay-gradient-hero);
+  }
+}
+
+.cta-banner__text {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  max-width: 380px;
+}
+
+@media (min-width: 1024px) {
+  .cta-banner {
+    min-height: 740px;
+    padding: var(--space-8) var(--gutter-desktop-centered);
+  }
+
+  .cta-banner__text {
+    max-width: 450px;
+  }
+
+  /* Home's "Плануєте захід?" is short enough to sit inside the shared
+     .hero__title 20ch cap without ever wrapping; Services' "Не
+     визначились із форматом?" is longer and was wrapping onto 2 lines at
+     1440px where Figma (2155:1375) shows it as one unbroken line
+     (whitespace-nowrap, no width constraint). Removing the cap lets the
+     heading size to its own single-line content instead — .cta-banner
+     already centers it (align-items:center, not stretch), so an h2 with
+     no max-width shrink-wraps to exactly the width its text needs rather
+     than stretching or being forced to wrap. Scoped to this page's CTA
+     banner only, and desktop-only: at mobile widths this same heading
+     genuinely needs to wrap (no single-line room exists), and the
+     existing 20ch-based wrap there already reads fine. */
+  .cta-banner--services .hero__title {
+    max-width: none;
+  }
+
+  /* Same root cause as .cta-banner--services above: "Сподобалось меню?"
+     (17 chars) is short enough by character count to look like it should
+     fit the shared 20ch cap, but "Сподобалось" renders wider per-glyph
+     than the cap assumes — confirmed wrapping onto 2 lines at 1440px
+     where Figma (2208:903) shows one unbroken line. Same fix, same
+     desktop-only scope. */
+  .cta-banner--menu .hero__title {
+    max-width: none;
+  }
+}
+
+/* =========================================================
+   Services: format detail rows
+   ========================================================= */
+
+.service-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.service-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.service-detail__media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.service-detail__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-detail__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-strong);
+}
+
+.service-detail__body {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.service-detail__list {
+  list-style: disc;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.service-detail__price-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-text-on-dark);
+  padding-top: var(--space-1);
+}
+
+.service-detail__price-label {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.service-detail__price-value {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-bold);
+  font-size: 1.75rem;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+@media (min-width: 1024px) {
+  .service-detail-list {
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+  }
+
+  /* Mobile always stacks image-top/body-below (Figma-confirmed); only at
+     desktop do rows alternate image left/right via row-reverse, so the
+     DOM order (media first, body second) never needs to change per card. */
+  .service-detail {
+    flex-direction: row;
+  }
+
+  .service-detail--reverse {
+    flex-direction: row-reverse;
+  }
+
+  .service-detail__media {
+    flex: 1;
+    height: auto;
+  }
+
+  /* Figma's "Action Buttons Container" doesn't stretch full-width like its
+     siblings do — the button keeps its own intrinsic size rather than
+     filling the row, unlike .service-panel__content/list/price-row above
+     it (which stretch for free via the body's default align-items:
+     stretch). Desktop-only: on mobile the button SHOULD take the body's
+     full width (that stretch default is exactly what item 5 wants there),
+     so this override must not apply below 1024px. */
+  .service-detail__body > .btn {
+    align-self: flex-start;
+  }
+
+  /* Same reused photo, same Figma-authored crop on all 4 cards
+     (h-[306.75%] left-[0.05%] top-[-103.37%] w-full, confirmed identical
+     across 2155:1271/2157:1487/2157:1462/2157:1512) — a specific zoom/
+     offset onto the photo's long table, not a plain cover fit. Expressed
+     as percentages of the media box itself, so it stays correct
+     regardless of how tall the row ends up (height is content-driven via
+     flex stretch, not fixed). Mobile keeps plain cover: this card's
+     mobile aspect ratio (wide/short, stacked above the body) is nothing
+     like the desktop row's (narrow/tall), so the same percentages would
+     badly over-zoom there — no mobile-specific crop was confirmed in
+     Figma, and cover is the safe, correct default for that shape. */
+  .service-detail__media img {
+    position: absolute;
+    left: 0.05%;
+    top: -103.37%;
+    width: 100%;
+    height: 306.75%;
+    max-width: none;
+    object-fit: unset;
+  }
+
+  .service-detail__body {
+    width: 499px;
+    flex-shrink: 0;
+    padding: var(--space-5);
+  }
+}
+
+/* =========================================================
+   Services: "How we work" process steps
+   ========================================================= */
+
+.process-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.process-card {
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  /* Mobile-only rhythm: the 40px (--space-5) gap used at desktop between
+     the icon/divider group and the title+desc text block reads as an
+     oversized, disconnected gap on the much shorter mobile card — a stark
+     40px jump right next to the tighter 16px (--space-2) title-to-desc
+     gap just below it. 24px (--space-3) keeps a real, deliberate token
+     from the same scale while landing much closer to that 16px, giving a
+     consistent, proportional rhythm top-to-bottom instead of one oversized
+     gap and one tight one. Restored to the original 40px at desktop below. */
+  gap: var(--space-3);
+}
+
+.process-card__icon-row {
+  border-bottom: 1px solid var(--color-text-on-cream-20);
+  padding-bottom: var(--space-2);
+}
+
+.process-card__icon {
+  width: 40px;
+  height: 40px;
+}
+
+.process-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.process-card__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+.process-card__desc {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+}
+
+@media (min-width: 640px) {
+  .process-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .process-grid {
+    grid-template-columns: repeat(4, 1fr);
+    /* Figma's own 16px gap + 24px card padding leaves ~284px of usable
+       text width per card at the 1440px reference — measurably narrower
+       than several of the actual descriptions need in the real web font
+       (e.g. "Залишаєте заявку на сайті або дзвоните нам" needs ~314px),
+       which was forcing early/awkward wraps (and is why two of the four
+       cards previously carried a manual <br> as a band-aid — removed
+       below in favor of fixing the actual width). Tightening the gap
+       (still a real spacing-scale token, not an arbitrary value) buys
+       back a few px per card without touching padding's own scale. */
+    gap: var(--space-1);
+    margin-top: var(--space-6);
+  }
+
+  .process-card {
+    /* Horizontal-width reasoning: same as the gap reduction above — less
+       padding (still a real token) gives each description more usable
+       width so it wraps where the text naturally calls for it instead of
+       running out of room early. Vertical rhythm: restores the original
+       40px (--space-5) icon-to-text gap at desktop — the mobile-only
+       tightening to 24px above (see .process-card's base rule) is scoped
+       away here since the desktop card is much taller and 40px already
+       read correctly there. */
+    padding: var(--space-2) var(--space-1);
+    gap: var(--space-5);
+  }
+}
+
+/* =========================================================
+   Menu: category navigation
+   ========================================================= */
+
+.menu-nav {
+  /* Sticky while browsing the category lists below — the site header
+     itself is NOT sticky (plain position:relative, scrolls away
+     normally), so by the time this would otherwise scroll above the
+     viewport top, the header is already gone and there's nothing for it
+     to overlap. An opaque background + its own vertical padding are what
+     actually matter here: without them, category headings/cards would
+     visibly scroll underneath a transparent strip. z-index only needs to
+     clear ordinary in-flow content (category headings/cards have none of
+     their own) — well below the mobile off-canvas nav (100) and the
+     global contact modal (200), which are unrelated overlay states. */
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: var(--space-2) 0;
+  background-color: var(--color-cream);
+  border-bottom: 1px solid var(--color-text-on-cream-20);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Hides the scrollbar visually while keeping it fully functional — a
+     horizontally-scrollable strip reads as a slider/tab-bar, not a
+     document with a visible scrollbar, on the mobile widths where this
+     ever actually needs to scroll (desktop has room for all 5 labels and
+     never scrolls). */
+  scrollbar-width: none;
+}
+
+.menu-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.menu-nav__track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: max-content;
+}
+
+.menu-nav__link {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-nav-button);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.25s ease;
+}
+
+.menu-nav__link--active {
+  font-weight: var(--font-weight-heading-bold);
+  border-bottom-color: var(--color-text-on-cream);
+}
+
+@media (min-width: 1024px) {
+  .menu-nav {
+    overflow-x: visible;
+  }
+
+  .menu-nav__track {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+}
+
+/* =========================================================
+   Menu: categorized item list
+   ========================================================= */
+
+.menu-category {
+  margin-top: var(--space-6);
+}
+
+.menu-category__title {
+  font-size: var(--font-size-h2);
+  margin-bottom: var(--space-3);
+}
+
+.menu-category__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.menu-item {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-text-on-cream-20);
+  background-color: var(--color-cream);
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+}
+
+.menu-item__body {
+  flex: 1;
+  min-width: 0;
+  padding: 0 var(--space-1) 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-menu-item-gap-mobile);
+}
+
+.menu-item__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: 1.125rem;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+}
+
+.menu-item__price-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.menu-item__price-amount {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body-medium);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-cream);
+}
+
+.menu-item__price-unit {
+  font-family: var(--font-body);
+  font-weight: var(--font-weight-body-medium);
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-cream-70);
+}
+
+.menu-item__desc-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-menu-item-tight);
+}
+
+.menu-item__desc {
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  color: var(--color-text-on-cream-70);
+}
+
+.menu-item__weight-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-on-cream-70);
+}
+
+.menu-item__media {
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-start;
+  width: 172px;
+  height: 106px;
+  overflow: hidden;
+}
+
+.menu-item__media img {
+  /* Same reused-photo crop technique as .service-detail__media img and
+     Menu's own desktop item image (Figma confirms identical percentages
+     at both breakpoints for this component — no mobile/desktop split
+     needed, unlike hero/service-detail). */
+  position: absolute;
+  left: 0.05%;
+  top: -103.37%;
+  width: 100%;
+  height: 306.75%;
+  max-width: none;
+}
+
+.menu-item__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-light);
+}
+
+@media (min-width: 1024px) {
+  .menu-category {
+    margin-top: var(--space-7);
+  }
+
+  .menu-item {
+    padding: var(--space-2);
+  }
+
+  .menu-item__body {
+    padding: var(--space-2);
+    gap: var(--space-2);
+  }
+
+  .menu-item__title {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-heading-bold);
+  }
+
+  .menu-item__price-amount {
+    font-size: var(--font-size-h3);
+  }
+
+  .menu-item__price-unit {
+    font-size: var(--font-size-price-featured);
+  }
+
+  .menu-item__desc {
+    font-size: var(--font-size-body);
+  }
+
+  .menu-item__weight-row {
+    font-size: var(--font-size-caption);
+  }
+
+  .menu-item__media {
+    width: 332px;
+    height: 205px;
+  }
+}
+
+/* =========================================================
+   Home: About teaser
+   ========================================================= */
+
+.about-teaser {
+  padding-top: var(--space-6);
+  /* The full-bleed media below is deliberately wider than 100% (100vw via
+     negative margins) to reach the true viewport edge even though its
+     ancestors are all narrower; on a scrollbar'd desktop browser 100vw is
+     a few px wider than the visible area, which this clips locally so it
+     never registers as page-level horizontal overflow. */
+  overflow-x: hidden;
+}
+
+.about-teaser__intro {
+  padding: 0 var(--space-gutter-mobile);
+}
+
+.about-teaser__media {
+  position: relative;
+  height: 380px;
+  margin-top: var(--space-4);
+  /* Full-bleed breakout: stretches to the viewport edge regardless of any
+     ancestor's padding/max-width, without needing a wrapper element. */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  overflow: hidden; /* clips the reveal's clip-path/scale so the image's edges never show */
+}
+
+.about-teaser__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Source photo (2880x1670) has the group's heads sitting in roughly the
+     top third of the frame. At this section's wide/short aspect ratio,
+     object-fit:cover crops most of the vertical overflow off the top and
+     bottom — the old 28% focal point cut into hair/heads. 10% keeps a
+     safety margin above the heads at 1440-2560px container widths without
+     touching fit/aspect-ratio/dimensions. */
+  object-position: 50% 10%;
+}
+
+.about-teaser__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-hero);
+}
+
+@media (min-width: 1024px) {
+  .about-teaser {
+    padding-top: var(--space-8);
+  }
+
+  .about-teaser__intro {
+    padding: 0 var(--gutter-desktop-centered);
+  }
+
+  .about-teaser__media {
+    /* Fixed 540px at the 1440px reference width, but the full-bleed
+       breakout (width:100vw) keeps stretching past that on wider monitors
+       while height stayed pinned — the wider/shorter that box got, the
+       more cover cropped vertically. Scaling height together with very
+       wide viewports keeps the crop ratio (and object-position) roughly
+       consistent instead of only getting more aggressive with screen size. */
+    height: clamp(540px, 37.5vw, 720px);
+  }
+}
+
+/* =========================================================
+   Home: Menu / Portfolio / Testimonial highlight grids
+   ========================================================= */
+
+.portfolio-carousel__viewport {
+  overflow: hidden;
+  /* Draggable at every breakpoint (see main.js): the track itself always
+     translates via a pointer-driven transform, never native scroll, so it
+     can loop seamlessly — pan-y leaves vertical page scroll (Lenis) alone
+     and lets JS own horizontal movement exclusively. */
+  touch-action: pan-y;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.portfolio-carousel__viewport.is-dragging {
+  cursor: grabbing;
+}
+
+@media (min-width: 1024px) {
+  .portfolio-carousel__viewport {
+    margin-left: calc(-1 * var(--gutter-desktop-centered));
+    margin-right: calc(-1 * var(--gutter-desktop-centered));
+    padding-left: calc(var(--edge-desktop-centered) + var(--space-4));
+  }
+}
+
+.menu-highlights__grid {
+  margin-top: var(--space-4);
+}
+
+.menu-highlights__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+/* The events/portfolio track is a horizontal slider at every breakpoint
+   (not just desktop) — mobile/tablet get real touch-drag with an
+   edge-to-edge "next card peeking" composition instead of a static
+   stacked grid, matching the required drag/swipe behavior at all sizes.
+   Card width is intentionally a plain CSS value per breakpoint, not tied
+   to viewport math beyond that — main.js's clone-based loop track is what
+   makes this correct at arbitrary/very-wide viewports, not the card's own
+   width formula. */
+.portfolio-highlights__grid {
+  display: flex;
+  gap: var(--space-2);
+  width: max-content;
+}
+
+.portfolio-highlights__grid .portfolio-card {
+  width: 78vw;
+  max-width: 340px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .portfolio-highlights__grid .portfolio-card {
+    width: 46vw;
+    max-width: 380px;
+  }
+}
+
+.testimonial-highlights__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.testimonials {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials__decor {
+  display: none;
+}
+
+.testimonials__layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.testimonials__heading {
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .testimonials__layout {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .testimonials__heading {
+    flex-shrink: 0;
+    max-width: 459px;
+    text-align: left;
+  }
+
+  .testimonials__decor {
+    display: block;
+    position: absolute;
+    left: calc(var(--edge-desktop-centered) - 16px);
+    top: 376px;
+    width: 589px;
+    height: 831px;
+    opacity: 0.2;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .testimonial-highlights__list {
+    width: 100%;
+    max-width: 820px;
+  }
+}
+
+@media (min-width: 640px) {
+  .menu-highlights__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .menu-highlights__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+  }
+
+  .portfolio-highlights__grid {
+    align-items: start;
+    gap: 48px;
+  }
+
+  .portfolio-highlights__grid .portfolio-card {
+    width: 380px;
+    max-width: none;
+    flex-shrink: 0;
+  }
+
+  /* :nth-child(4n+k), not a flat :nth-child(k) — main.js clones this set
+     several times over for the infinite-loop track, so the stagger must
+     repeat every 4 cards (matching the original set's own internal
+     rhythm) rather than only ever applying to the first four DOM children,
+     which would leave every card outside the very first clone-set flat. */
+  .portfolio-highlights__grid > :nth-child(4n + 1) {
+    margin-top: 60px;
+  }
+
+  .portfolio-highlights__grid > :nth-child(4n + 2) {
+    margin-top: 0;
+  }
+
+  .portfolio-highlights__grid > :nth-child(4n + 3) {
+    margin-top: 72px;
+  }
+
+  .portfolio-highlights__grid > :nth-child(4n + 4) {
+    margin-top: 32px;
+  }
+}
+
+/* =========================================================
+   Home: Quick contact section (form + contact tiles)
+   ========================================================= */
+
+.quick-contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Mobile-only: .quick-contact__row is plain block flow below 1024px (the
+   flex+gap treatment is desktop-only, see below), so the form and the
+   tile grid right after it had zero space between them — the phone
+   tile's top edge touched the form's bottom edge directly. */
+@media (max-width: 1023.98px) {
+  .quick-contact__row .contact-tile-grid {
+    margin-top: var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) {
+  .quick-contact__row {
+    display: flex;
+    gap: var(--space-2);
+    align-items: stretch;
+  }
+
+  .quick-contact__row .quick-form {
+    width: 753px;
+    flex-shrink: 0;
+  }
+
+  .quick-contact__row .contact-tile-grid {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   About: story section ("Veranda by Voloshyn" intro)
+   ========================================================= */
+
+.about-story {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.about-story__panel {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-cream);
+  height: 375px;
+  padding: var(--space-4) var(--space-gutter-mobile) 88px; /* 88px: FLAGGED, Figma-confirmed one-off */
+}
+
+/* Figma-confirmed size (356×503, identical at both breakpoints) and
+   position, positioned at low opacity behind the text block and spilling
+   past the panel's own bottom edge into the photo beneath it — uses the
+   same wind-animation flower asset already established on Why-Us/
+   Testimonials (see js/botanical-animation.js). */
+.about-story__decor {
+  position: absolute;
+  left: 20px;
+  top: 240px;
+  width: 356px;
+  height: 503px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.about-story__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.about-story__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: 2.5rem; /* 40px, fixed at both breakpoints per Figma */
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  color: var(--color-text-on-cream);
+}
+
+.about-story__text {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  color: var(--color-text-on-cream);
+}
+
+.about-story__media {
+  position: relative;
+  height: 272px;
+  overflow: hidden;
+}
+
+.about-story__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-story__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-strong);
+}
+
+@media (min-width: 1024px) {
+  .about-story {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .about-story__panel {
+    width: 779px;
+    height: 480px;
+    flex-shrink: 0;
+    padding: 88px var(--space-5);
+  }
+
+  .about-story__content {
+    width: 466px;
+  }
+
+  .about-story__decor {
+    left: 356px;
+    top: 162px;
+  }
+
+  .about-story__media {
+    flex: 1;
+    height: 394px;
+  }
+}
+
+/* =========================================================
+   About: stats band ("у цифрах")
+   ========================================================= */
+
+.stats-band {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-5) var(--space-gutter-mobile);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  color: var(--color-text-on-dark);
+}
+
+.stats-band__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.stats-band__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Not present as a separate layer in the Figma export (the source photo's
+   own darkness does the job there), but every other photo-behind-text
+   moment on this site gets a legibility scrim — kept mild since the photo
+   is already fairly dark, purely a safety net against a brighter crop. */
+.stats-band__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient-light);
+}
+
+.stats-band__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-light);
+  font-size: var(--font-size-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+/* Figma-confirmed: single column at mobile (2206:439), 4-across at
+   desktop (2199:2185) — not a 2×2 guess. */
+.stats-band__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+}
+
+.stat-card {
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.stat-card__value {
+  font-family: var(--font-heading);
+  font-weight: 500; /* FLAGGED: Figma's "Medium" style, no matching token (only light/regular/bold exist) */
+  font-size: 3.125rem; /* 50px, Figma-confirmed identical at both breakpoints */
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+.stat-card__label {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+}
+
+@media (min-width: 1024px) {
+  .stats-band {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .stats-band__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* =========================================================
+   About: team section ("Люди, які створюють атмосферу")
+   ========================================================= */
+
+.team-section {
+  background-color: var(--color-dark-olive);
+  color: var(--color-text-on-dark);
+  padding: var(--space-4) 0; /* 32px, Figma-confirmed mobile */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow: hidden;
+}
+
+.team-section__title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-light);
+  font-size: var(--font-size-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0 var(--space-gutter-mobile);
+}
+
+.team-carousel__viewport {
+  overflow: hidden;
+  padding: 0 var(--space-gutter-mobile);
+}
+
+.team-carousel__track {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+/* 380px square cards at BOTH breakpoints (Figma-confirmed identical size —
+   the row is wider than the viewport at every width, including desktop,
+   so this is a drag/scroll carousel everywhere, not just mobile; see
+   createLoopCarousel()'s team instance in main.js, which has no
+   `mobileOnly` for exactly this reason). */
+.team-card {
+  flex-shrink: 0;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.team-card__media {
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+}
+
+.team-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-card__name {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-h3);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+}
+
+.team-card__role {
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.team-section .carousel-progress,
+.team-section .carousel-controls-mobile {
+  margin-left: var(--space-gutter-mobile);
+  margin-right: var(--space-gutter-mobile);
+}
+
+/* .carousel-progress/.carousel-nav__btn's default colors (dark-olive-based)
+   are calibrated for a cream background (their original context: the
+   service-picker carousel) — on team-section's dark-olive background
+   they're dark-on-dark and invisible. Re-themed on-dark here, same
+   root cause and same fix already established for the portfolio-card
+   arrow icon in COMPONENTS.md (a hardcoded dark stroke needs recoloring,
+   not just reusing, on a dark surface); a plain CSS filter is enough here
+   since the icon is inline `<img>` content already loaded, not a mask. */
+.team-section .carousel-progress__segment {
+  background-color: var(--color-text-on-dark-20);
+}
+
+.team-section .carousel-progress__segment:hover {
+  background-color: var(--color-text-on-dark-60);
+}
+
+.team-section .carousel-progress__segment.is-active,
+.team-section .carousel-progress__segment.is-active:hover {
+  background-color: var(--color-text-on-dark);
+}
+
+.team-section .carousel-controls-mobile .carousel-nav__btn {
+  border-color: var(--color-text-on-dark-20);
+}
+
+.team-section .carousel-controls-mobile .carousel-nav__btn[data-team-next] {
+  border-color: var(--color-text-on-dark);
+}
+
+.team-section .carousel-nav__btn img {
+  filter: invert(1);
+}
+
+@media (min-width: 1024px) {
+  .team-section {
+    padding: var(--space-8) 0; /* 100px, Figma-confirmed desktop */
+  }
+
+  .team-carousel__viewport {
+    padding: 0 var(--space-4);
+  }
+
+  .team-carousel__track {
+    gap: 48px; /* FLAGGED: Figma-confirmed one-off, not on the 8px scale */
+  }
+
+  /* Figma's stagger: cards 2 and 4 sit 64px higher than 1 and 3 — true at
+     every breakpoint, since setCount is even (4), so this parity holds
+     correctly even across the carousel's cloned sets (see
+     createLoopCarousel() in main.js): position 2 of every repeated set of
+     4 is still "the 2nd/4th card of that set" after cloning. */
+  .team-card:nth-child(even) {
+    margin-top: -64px;
+  }
+}
+
+/* =========================================================
+   About: pull-quote
+   ========================================================= */
+
+.pull-quote {
+  padding: var(--space-6) var(--space-gutter-mobile); /* mobile: 56px top/bottom, Figma-confirmed */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 17px; /* FLAGGED: Figma-confirmed one-off, not on the 8px scale */
+  text-align: center;
+}
+
+.pull-quote__text {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: var(--font-weight-heading-regular);
+  font-size: 1.8125rem; /* 29px, Figma-confirmed one-off */
+  line-height: 1.14;
+  letter-spacing: var(--letter-spacing-tight);
+  text-transform: uppercase;
+  color: var(--color-text-quote);
+  /* Wide enough (968px natural width) that the manually-broken first line
+     ("...до кожної") never wraps further at desktop — narrower viewports
+     are constrained by the section's own gutter padding instead, wrapping
+     naturally, same as Figma's own mobile frame does with this identical
+     two-paragraph source text. */
+  max-width: 1000px;
+}
+
+.pull-quote__attribution {
+  font-size: var(--font-size-body);
+  color: var(--color-text-quote-attribution);
+}
+
+@media (min-width: 1024px) {
+  .pull-quote {
+    padding: var(--space-7) var(--space-gutter-mobile) 48px; /* 64px top / 48px bottom, Figma-confirmed */
+  }
+}
+
+/* =========================================================
+   About: photo strip
+   ========================================================= */
+
+.photo-strip {
+  padding: var(--space-5) 0;
+}
+
+.photo-strip__viewport {
+  overflow: hidden;
+  padding: 0 var(--space-gutter-mobile);
+}
+
+.photo-strip__track {
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* 319×425, Figma-confirmed (the mobile frame's own photo-item size before
+   the desktop image set was adopted here per the "one consistent set"
+   decision — the container geometry still applies to whatever images fill
+   it). */
+.photo-strip__item {
+  flex-shrink: 0;
+  width: 319px;
+  height: 425px;
+}
+
+.photo-strip__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-strip .carousel-progress,
+.photo-strip .carousel-controls-mobile {
+  margin-left: var(--space-gutter-mobile);
+  margin-right: var(--space-gutter-mobile);
+}
+
+@media (min-width: 1024px) {
+  .photo-strip {
+    padding: var(--space-5);
+  }
+
+  .photo-strip__viewport {
+    overflow: visible;
+    padding: 0;
+  }
+
+  .photo-strip__track {
+    gap: var(--space-3);
+  }
+
+  .photo-strip__item {
+    flex: 1;
+    width: auto;
+    height: 425px;
+  }
+}

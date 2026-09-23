@@ -13,8 +13,44 @@
    ========================================================= */
 
 .site-header {
-  position: relative;
+  /* Fixed per explicit request — stays visible while scrolling instead of
+     scrolling away. Taking it out of normal flow means nothing below it
+     reserves space for it automatically anymore: .hero (the element that
+     always immediately follows it in the DOM on every page) compensates
+     with its own margin-top (see .hero in this file), and the sticky
+     .menu-nav / same-page anchor-scroll offset / the two remaining pinned
+     ScrollTrigger sections (Why-Us, CTA banner) all account for its height
+     too — see CHANGELOG.md for the full list this change touched.
+     z-index sits below the off-canvas mobile nav (100) and the global
+     contact modal (200), both unrelated overlay states. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 90;
   background-color: var(--color-cream);
+  /* A subtle, permanent separation shadow — needed now that the header is
+     fixed and can sit directly over another cream section (menu-highlights,
+     quick-contact, etc.) with no visual boundary between them otherwise;
+     same rgba base as the site's one existing shadow (contact-tile hover
+     in components.css), just much lighter since this one is always on. */
+  box-shadow: 0 4px 16px rgba(51, 55, 41, 0.08);
+  /* Hide-on-scroll (main.js toggles html.is-header-hidden: scrolling down
+     hides, any scroll up shows). transform only — the header keeps its
+     box/height, so everything measured from it (hero margin, pinned
+     ScrollTrigger starts, anchor offsets) is unaffected. */
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Extra 24px so the shadow's blur doesn't peek out under the viewport top. */
+.is-header-hidden .site-header {
+  transform: translateY(calc(-100% - 24px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
 }
 
 .site-header__bar {
@@ -71,8 +107,11 @@
   transition: transform 0.3s ease;
 }
 
+/* Current page (aria-current="page" in each page's header markup) keeps
+   the hover underline permanently. */
 .site-header__nav-link:hover::after,
-.site-header__nav-link:focus-visible::after {
+.site-header__nav-link:focus-visible::after,
+.site-header__nav-link[aria-current="page"]::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -174,7 +213,8 @@
 }
 
 .site-header__mobile-nav-link:hover::after,
-.site-header__mobile-nav-link:focus-visible::after {
+.site-header__mobile-nav-link:focus-visible::after,
+.site-header__mobile-nav-link[aria-current="page"]::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -486,7 +526,15 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: var(--space-3);
-  min-height: 560px;
+  /* Full-screen hero, deliberately not Figma's fixed frame height — minus
+     the header's own height. .site-header is now position:fixed (out of
+     flow, doesn't push anything down by itself), so margin-top reserves
+     the same space by hand: hero (the element that always immediately
+     follows the header in the DOM) starts right where the fixed header
+     ends, and its own height is shortened by the same amount, so
+     header+hero together still fill exactly one screen. */
+  margin-top: var(--header-height-mobile);
+  height: calc(100vh - var(--header-height-mobile));
   padding: 48px var(--space-gutter-mobile); /* Figma mobile: py-48px, not on the 8px scale */
   overflow: hidden;
 }
@@ -625,6 +673,12 @@
   height: 100%;
   max-width: 100%;
   object-fit: cover;
+  /* object-position defaults to center, which crops noticeably more off
+     the top of the frame than Figma's composition (more headroom above
+     the group, table/food fully anchored near the bottom) — confirmed by
+     comparing the live render against a fresh Figma screenshot of node
+     2190:2138. */
+  object-position: center top;
 }
 
 .hero__title {
@@ -710,7 +764,8 @@ h1.hero__title {
 
 @media (min-width: 1024px) {
   .hero {
-    min-height: 835px;
+    margin-top: var(--header-height-desktop);
+    height: calc(100vh - var(--header-height-desktop));
     padding: var(--space-7) var(--gutter-desktop-centered);
   }
 
@@ -765,7 +820,8 @@ h1.hero__title {
 /* The extracted prev/next SVGs are the same right-pointing glyph (Figma flips
    the "previous" instance via a layer transform rather than shipping a
    separate mirrored asset), so the flip is reproduced here instead. */
-.carousel-nav__btn[data-carousel-prev] img {
+.carousel-nav__btn[data-carousel-prev] img,
+.carousel-nav__btn[data-gallery-scroll-prev] img {
   transform: rotate(180deg);
 }
 
@@ -795,12 +851,16 @@ h1.hero__title {
 .carousel-nav__btn[data-carousel-next]:hover:not(:disabled) img,
 .carousel-nav__btn[data-carousel-next]:focus-visible:not(:disabled) img,
 .carousel-nav__btn[data-portfolio-next]:hover:not(:disabled) img,
-.carousel-nav__btn[data-portfolio-next]:focus-visible:not(:disabled) img {
+.carousel-nav__btn[data-portfolio-next]:focus-visible:not(:disabled) img,
+.carousel-nav__btn[data-gallery-scroll-next]:hover:not(:disabled) img,
+.carousel-nav__btn[data-gallery-scroll-next]:focus-visible:not(:disabled) img {
   transform: translateX(3px);
 }
 
 .carousel-nav__btn[data-carousel-prev]:hover:not(:disabled) img,
-.carousel-nav__btn[data-carousel-prev]:focus-visible:not(:disabled) img {
+.carousel-nav__btn[data-carousel-prev]:focus-visible:not(:disabled) img,
+.carousel-nav__btn[data-gallery-scroll-prev]:hover:not(:disabled) img,
+.carousel-nav__btn[data-gallery-scroll-prev]:focus-visible:not(:disabled) img {
   transform: rotate(180deg) translateX(3px);
 }
 
@@ -1060,6 +1120,13 @@ h1.hero__title {
   .cta-banner--menu .hero__title {
     max-width: none;
   }
+
+  /* Portfolio's CTA banner reuses the exact same heading text as
+     Services' ("Не визначились із форматом?", confirmed identical via
+     Figma node 2158:1906) — same fix, same root cause, same scope. */
+  .cta-banner--portfolio .hero__title {
+    max-width: none;
+  }
 }
 
 /* =========================================================
@@ -1169,22 +1236,25 @@ h1.hero__title {
     align-self: flex-start;
   }
 
-  /* Same reused photo, same Figma-authored crop on all 4 cards
-     (h-[306.75%] left-[0.05%] top-[-103.37%] w-full, confirmed identical
-     across 2155:1271/2157:1487/2157:1462/2157:1512) — a specific zoom/
-     offset onto the photo's long table, not a plain cover fit. Expressed
-     as percentages of the media box itself, so it stays correct
-     regardless of how tall the row ends up (height is content-driven via
-     flex stretch, not fixed). Mobile keeps plain cover: this card's
-     mobile aspect ratio (wide/short, stacked above the body) is nothing
-     like the desktop row's (narrow/tall), so the same percentages would
-     badly over-zoom there — no mobile-specific crop was confirmed in
-     Figma, and cover is the safe, correct default for that shape. */
+  /* Row height is content-driven (flex stretch from the body), so the
+     photo is positioned against the media box rather than sized by it. */
   .service-detail__media img {
     position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* Figma-authored crop for the long-table photo (h-[306.75%]
+     left-[0.05%] top-[-103.37%] w-full, identical across
+     2155:1271/2157:1487/2157:1462/2157:1512 — Figma reused this one photo
+     on all 4 cards). A specific zoom onto the long table, not a plain
+     cover fit — only valid for that photo, so it's scoped to its card; the
+     provisional per-format photos on the other 3 keep plain cover. Mobile
+     keeps cover for all: its wide/short stacked shape would badly
+     over-zoom with these percentages. */
+  .service-detail__media--longtable img {
     left: 0.05%;
     top: -103.37%;
-    width: 100%;
     height: 306.75%;
     max-width: none;
     object-fit: unset;
@@ -1194,6 +1264,125 @@ h1.hero__title {
     width: 499px;
     flex-shrink: 0;
     padding: var(--space-5);
+  }
+
+  /* Scrollytelling mode — class added by scroll-experience.js on desktop
+     only when motion is allowed (reduced motion / no GSAP keep the
+     alternating rows above). One sticky photo "stage" holds the left
+     column while the 4 descriptions scroll past on the right. The stage
+     is exactly as tall as a description (--service-body-height, the
+     tallest body measured by JS; every body gets that min-height) and
+     both are centred in the visible area under the fixed header: each
+     row is one visible-area tall with its body centred, the stage is
+     inset by the same amount at top (sticky offset) and top/bottom
+     (margins — sticky keeps the margin box inside the grid area, so the
+     stage also lines up with the first and last body). So the active
+     description sits exactly beside the photo, edge to edge. Plain CSS
+     sticky, not a ScrollTrigger pin: no pin-spacer, nothing below shifts. */
+  .service-detail-list--scrolly {
+    --service-view-height: calc(100vh - var(--header-height-desktop));
+    --service-body-height: 560px; /* fallback until JS measures */
+    --service-stage-inset: max(0px, calc((var(--service-view-height) - var(--service-body-height)) / 2));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 499px;
+    gap: 0;
+  }
+
+  .service-detail-list--scrolly .service-detail {
+    grid-column: 2;
+    min-height: var(--service-view-height);
+    align-items: center;
+  }
+
+  .service-detail-list--scrolly .service-detail__media {
+    display: none;
+  }
+
+  .service-detail-list--scrolly .service-detail__body {
+    width: 100%;
+    min-height: var(--service-body-height);
+    opacity: 0.4;
+    transition: opacity 0.6s ease;
+  }
+
+  .service-detail-list--scrolly .service-detail.is-active .service-detail__body {
+    opacity: 1;
+  }
+
+  .service-stage {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    align-self: start;
+    position: sticky;
+    top: calc(var(--header-height-desktop) + var(--service-stage-inset));
+    height: var(--service-body-height);
+    margin: var(--service-stage-inset) 0;
+    overflow: hidden;
+  }
+
+  .service-stage__img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .service-stage__webgl {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .service-stage__webgl.is-active {
+    visibility: visible;
+  }
+
+  .service-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: var(--overlay-gradient-strong);
+    pointer-events: none;
+  }
+
+  /* Big light numeral, same treatment as Home's .service-picker__index,
+     on the photo instead of on cream. Each digit pair rolls through its
+     own mask when the format changes. */
+  .service-stage__index {
+    position: absolute;
+    left: var(--space-5);
+    bottom: var(--space-4);
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-heading-light);
+    letter-spacing: var(--letter-spacing-tight);
+    color: var(--color-text-on-dark);
+  }
+
+  .service-stage__index-mask {
+    display: block;
+    overflow: hidden;
+    font-size: var(--font-size-h2);
+    line-height: 1.1;
+  }
+
+  .service-stage__index-current {
+    display: block;
+  }
+
+  .service-stage__index-total {
+    font-size: var(--font-size-body);
   }
 }
 
@@ -1262,6 +1451,33 @@ h1.hero__title {
   }
 }
 
+/* Scroll-drawn process line — .process-grid--drawn is added by
+   scroll-experience.js only when motion is allowed, so reduced motion /
+   no JS keep the plain static cards above. Each card's divider is
+   re-drawn (a solid line growing from the left over the faint border)
+   once the scroll progress reaches that step. */
+.process-grid--drawn .process-card__icon-row {
+  position: relative;
+}
+
+.process-grid--drawn .process-card__icon-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background-color: var(--color-text-on-cream);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.process-grid--drawn .process-card.is-reached .process-card__icon-row::after {
+  transform: scaleX(1);
+}
+
+
 @media (min-width: 1024px) {
   .process-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -1297,19 +1513,24 @@ h1.hero__title {
    ========================================================= */
 
 .menu-nav {
-  /* Sticky while browsing the category lists below — the site header
-     itself is NOT sticky (plain position:relative, scrolls away
-     normally), so by the time this would otherwise scroll above the
-     viewport top, the header is already gone and there's nothing for it
-     to overlap. An opaque background + its own vertical padding are what
+  /* Sticky while browsing the category lists below, docking directly
+     under the fixed .site-header (top offset = the header's own height —
+     see --header-height-mobile/desktop in variables.css) rather than at
+     the bare viewport top, since the header is now permanently visible
+     and would otherwise sit on top of/hide this nav once it starts
+     sticking. An opaque background + its own vertical padding are what
      actually matter here: without them, category headings/cards would
      visibly scroll underneath a transparent strip. z-index only needs to
      clear ordinary in-flow content (category headings/cards have none of
-     their own) — well below the mobile off-canvas nav (100) and the
-     global contact modal (200), which are unrelated overlay states. */
+     their own) and sit below the header (90) — well below the mobile
+     off-canvas nav (100) and the global contact modal (200), which are
+     unrelated overlay states. */
   position: sticky;
-  top: 0;
+  top: var(--header-height-mobile);
   z-index: 5;
+  /* Follows the hide-on-scroll header up to the viewport top (same
+     duration/curve as .site-header's own transform). */
+  transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   padding: var(--space-2) 0;
   background-color: var(--color-cream);
   border-bottom: 1px solid var(--color-text-on-cream-20);
@@ -1328,13 +1549,32 @@ h1.hero__title {
 }
 
 .menu-nav__track {
+  position: relative; /* containing block for .menu-nav__indicator */
   display: flex;
   align-items: center;
   gap: var(--space-4);
   width: max-content;
 }
 
+/* Shared travelling underline (scroll-experience.js createTravelIndicator,
+   same as Portfolio's filter). Without GSAP/reduced motion the per-link
+   ::after keeps marking the active category. */
+.menu-nav__indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--color-text-on-cream);
+  pointer-events: none;
+}
+
+.menu-nav.has-indicator .menu-nav__link--active::after {
+  display: none;
+}
+
 .menu-nav__link {
+  position: relative;
   flex-shrink: 0;
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-heading);
@@ -1344,17 +1584,57 @@ h1.hero__title {
   line-height: var(--line-height-tight);
   text-transform: uppercase;
   color: var(--color-text-on-cream);
-  border-bottom: 3px solid transparent;
-  transition: border-color 0.25s ease;
+  transition: color 0.25s ease;
+}
+
+/* Same traveling-underline language as .site-header__nav-link::after
+   (COMPONENTS.md's "Link hover language") — reused here for BOTH hover
+   and the scroll-spy-driven active state (main.js toggles
+   --active as the IntersectionObserver crosses each category), instead of
+   the old plain border-bottom color fade, so switching categories while
+   scrolling reads as the indicator sweeping from the old link to the new
+   one rather than two abrupt color snaps. */
+.menu-nav__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s ease;
+}
+
+.menu-nav__link:hover::after,
+.menu-nav__link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 .menu-nav__link--active {
   font-weight: var(--font-weight-heading-bold);
-  border-bottom-color: var(--color-text-on-cream);
+}
+
+.menu-nav__link--active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.is-header-hidden .menu-nav {
+  top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-nav {
+    transition: none;
+  }
 }
 
 @media (min-width: 1024px) {
   .menu-nav {
+    top: var(--header-height-desktop);
     overflow-x: visible;
   }
 
@@ -1464,6 +1744,21 @@ h1.hero__title {
   overflow: hidden;
 }
 
+/* Wraps the photo so it can open the fullscreen lightbox (see
+   .photo-lightbox in components.css) — deliberately not position:relative/
+   absolute itself, so .menu-item__media img's own absolute crop hack below
+   still resolves against .menu-item__media (the nearest positioned
+   ancestor), unaffected by this wrapper being inserted between them. */
+.menu-item__media-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
 .menu-item__media img {
   /* Same reused-photo crop technique as .service-detail__media img and
      Menu's own desktop item image (Figma confirms identical percentages
@@ -1475,6 +1770,21 @@ h1.hero__title {
   width: 100%;
   height: 306.75%;
   max-width: none;
+  /* Same slow, deliberate push-in language as .portfolio-card__media img —
+     a visual cue this photo is clickable/zoomable, not a generic hover. */
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu-item__media-trigger:hover img,
+  .menu-item__media-trigger:focus-visible img {
+    transform: scale(1.06);
+  }
+}
+
+.menu-item__media-trigger:focus-visible {
+  outline: 2px solid var(--color-text-on-cream);
+  outline-offset: -2px;
 }
 
 .menu-item__media::after {
@@ -1482,6 +1792,11 @@ h1.hero__title {
   position: absolute;
   inset: 0;
   background: var(--overlay-gradient-light);
+  /* Without this, the overlay (painted after .menu-item__media-trigger in
+     source order, so it sits visually on top) swallows every click meant
+     for the button underneath — confirmed live via Playwright, the click
+     never reached the trigger at all before this fix. */
+  pointer-events: none;
 }
 
 @media (min-width: 1024px) {
@@ -1613,6 +1928,16 @@ h1.hero__title {
 
 .portfolio-carousel__viewport.is-dragging {
   cursor: grabbing;
+}
+
+/* Velocity skew for every createLoopCarousel() track (Home portfolio,
+   About team + photo strip): main.js adds the class and drives
+   --carousel-skew from drag speed. On the cards, never the track — the
+   track's inline translateX belongs to the carousel. Leans around the
+   card's vertical centre so it reads as the whole card tilting. */
+.has-velocity-skew > * {
+  transform: skewX(var(--carousel-skew, 0deg));
+  transform-origin: 50% 50%;
 }
 
 @media (min-width: 1024px) {
@@ -1803,6 +2128,127 @@ h1.hero__title {
 }
 
 /* =========================================================
+   Contacts page (title + extended form + contact tiles)
+
+   The only page with no .hero: this section follows the fixed header
+   directly, so it takes over hero's margin-top job (CLAUDE.md §14).
+   DOM order is form -> tiles (Figma mobile order: the form is the page's
+   main action); desktop swaps them visually with grid-column so tiles sit
+   on the left, as in the 1440px frame.
+   ========================================================= */
+
+.contacts {
+  position: relative;
+  overflow: hidden;
+  margin-top: var(--header-height-mobile);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Figma: 168×236 box at 20% opacity, image overflowing it by ~6% (crop
+   inset -1.57% top) — natural aspect at 168px wide, nudged up to match.
+   Sits behind the form/tiles (earlier in the DOM, no z-index), which
+   cover its lower half exactly like the frame. */
+.contacts__decor {
+  position: absolute;
+  top: 0;
+  right: -16px;
+  width: 168px;
+  height: auto;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.contacts__title {
+  position: relative;
+  text-align: center;
+  font-weight: var(--font-weight-heading-regular);
+  line-height: var(--line-height-heading-display);
+}
+
+.contacts__row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.contacts__tiles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.contacts__tiles .contact-tile {
+  border: 1px solid var(--color-text-on-cream-20);
+}
+
+@media (min-width: 1024px) {
+  .contacts {
+    margin-top: var(--header-height-desktop);
+    gap: var(--space-4);
+  }
+
+  .contacts__decor {
+    top: 54px;
+    right: auto;
+    left: calc(50% + 296px);
+  }
+
+  .contacts__title {
+    font-weight: var(--font-weight-heading-light);
+    line-height: var(--line-height-tight);
+  }
+
+  /* Figma 581 : 779 split of the 1376px row, kept proportional so the
+     1024–1440px range (no Figma frame) doesn't squeeze the tiles. */
+  .contacts__row {
+    display: grid;
+    grid-template-columns: minmax(0, 581fr) minmax(0, 779fr);
+    gap: var(--space-2);
+  }
+
+  .contacts__row .quick-form {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .contacts__tiles {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Tiles share the form's full height equally (Figma: 4 × 166.5px). */
+  .contacts__tiles .contact-tile {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* Figma's per-tile icon placement at 1440 (hand-placed, overflowing the
+     bottom-right corner) — overrides the Home grid's shared right:0/-16px. */
+  .contacts__tiles .contact-tile:nth-child(1) .contact-tile__icon {
+    right: -19px;
+    bottom: -37.5px;
+  }
+
+  .contacts__tiles .contact-tile:nth-child(2) .contact-tile__icon {
+    right: -19px;
+    bottom: -47.5px;
+  }
+
+  .contacts__tiles .contact-tile:nth-child(3) .contact-tile__icon {
+    right: -29px;
+    bottom: -32.5px;
+  }
+
+  .contacts__tiles .contact-tile:nth-child(4) .contact-tile__icon {
+    right: -28px;
+    bottom: -29.83px;
+  }
+}
+
+/* =========================================================
    About: story section ("Veranda by Voloshyn" intro)
    ========================================================= */
 
@@ -1823,8 +2269,12 @@ h1.hero__title {
 /* Figma-confirmed size (356×503, identical at both breakpoints) and
    position, positioned at low opacity behind the text block and spilling
    past the panel's own bottom edge into the photo beneath it — uses the
-   same wind-animation flower asset already established on Why-Us/
-   Testimonials (see js/botanical-animation.js). */
+   same wind-animation flower asset already established on Why-Us (NOT
+   Testimonials — a prior version of this file/comment assumed the
+   cornflower-branch asset without checking Figma's actual render, which
+   is the sparse babys-breath spray, confirmed by direct image comparison;
+   see CHANGELOG.md). js/botanical-animation.js's FLOWER_REGIONS is keyed
+   by filename, so no JS change was needed, only the <img src> swap. */
 .about-story__decor {
   position: absolute;
   left: 20px;
@@ -1882,6 +2332,17 @@ h1.hero__title {
   .about-story {
     flex-direction: row;
     align-items: center;
+    /* The panel+photo row is a fixed 1400px block (779+621) that sits
+       flush against Figma's true 1440px frame edge (not inset by the
+       usual 32px gutter — the panel starts at Figma x=0). Without this,
+       the row stayed pinned to the real viewport's left edge past 1440px
+       instead of tracking where the site's centered 1440px column starts
+       (--page-max-width in variables.css), unlike every other section on
+       this and every other page. edge-desktop-centered is 0 at exactly
+       1440px (no visual change there) and grows beyond it — same token
+       the header's own CTA button uses for the same flush-to-frame-edge
+       reason. */
+    padding-left: var(--edge-desktop-centered);
   }
 
   .about-story__panel {
@@ -1900,8 +2361,16 @@ h1.hero__title {
     top: 162px;
   }
 
+  /* Fixed 621×394 (Figma-exact), NOT flex:1 — the row's own 779px panel +
+     621px photo = 1400px, deliberately 40px short of the 1440px section
+     width (Figma shows a real trailing cream margin here, not a full-bleed
+     photo). flex:1 previously stretched this to fill all 661px of
+     remaining space, both oversizing the photo by 40px and erasing that
+     margin. flex-shrink:0 keeps it from being squeezed by the panel's own
+     flex-shrink:0 width claim. */
   .about-story__media {
-    flex: 1;
+    flex-shrink: 0;
+    width: 621px;
     height: 394px;
   }
 }
@@ -1930,6 +2399,25 @@ h1.hero__title {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Desktop only — Figma applies a specific percentage crop here (not a
+   plain object-fit:cover center), pulling the visible window down/in so
+   more of the champagne-tower structure shows and less of the blurred
+   background above it. Confirmed via a direct Figma-vs-live screenshot
+   comparison: object-fit:cover's default center crop didn't match. The
+   mobile frame (2206:439) genuinely IS plain object-cover — this is a
+   real breakpoint difference, not a missed override. */
+@media (min-width: 1024px) {
+  .stats-band__media img {
+    position: absolute;
+    left: 0.01%;
+    top: -40.14%;
+    width: 100%;
+    height: 357.16%;
+    max-width: none;
+    object-fit: initial;
+  }
 }
 
 /* Not present as a separate layer in the Figma export (the source photo's
@@ -1985,8 +2473,25 @@ h1.hero__title {
 }
 
 @media (min-width: 1024px) {
+  /* var(--space-4) (flat 32px) previously let the grid/title grow past
+     Figma's 1440px frame at any wider viewport — confirmed live at
+     2560px, where .stats-band__grid's repeat(4,1fr) columns stretched
+     each card far past Figma's ~332px. gutter-desktop-centered caps
+     content at --page-max-width (1440px) the same way every other
+     section on the site already does; this section was simply missed. */
   .stats-band {
-    padding: var(--space-8) var(--space-4);
+    padding: var(--space-8) var(--gutter-desktop-centered);
+  }
+
+  /* Without this, the heading used the section's full 1376px content
+     width (1440 minus the 32px side padding) instead of Figma's exact
+     1156px text box — wrapping onto a different line break than Figma's
+     actual 2-line composition ("VERANDA BY VOLOSHYN" / "У ЦИФРАХ"), which
+     also threw off the section's total rendered height vs. Figma's
+     605px. Mobile needs no equivalent override — Figma's mobile title is
+     `w-full` there too, same as the unconstrained default. */
+  .stats-band__title {
+    max-width: 1156px;
   }
 
   .stats-band__grid {
@@ -2019,9 +2524,19 @@ h1.hero__title {
   padding: 0 var(--space-gutter-mobile);
 }
 
+/* margin, not padding, for the horizontal gutter — deliberately, per a
+   real bug found live: overflow:hidden clips at the border-box edge, so
+   padding creates a paintable "buffer" zone where the track's own content
+   (the infinite-loop clone cards sitting just before/after the real set)
+   can still render and be visible, instead of actually being clipped at
+   the intended gutter-inset position. Confirmed live at 2560px: a sliver
+   of a previous clone card was visibly "stuck" to the left edge before
+   any scrolling/dragging had happened. margin shrinks the viewport's own
+   box to exactly the gutter-inset width, so overflow:hidden's clip
+   boundary IS the intended edge, with no leak. */
 .team-carousel__viewport {
   overflow: hidden;
-  padding: 0 var(--space-gutter-mobile);
+  margin: 0 var(--space-gutter-mobile);
 }
 
 .team-carousel__track {
@@ -2044,15 +2559,30 @@ h1.hero__title {
 }
 
 .team-card__media {
+  position: relative;
   width: 100%;
   height: 380px;
   overflow: hidden;
 }
 
+/* A real bug: the source photo (about-hero-with-baked-text.jpg — confirmed
+   byte-identical to Figma's own fill via checksum, so the asset itself was
+   never wrong) is a wide 4-person group shot; plain object-fit:cover on a
+   380x380 square just centered that whole group, showing 3-4 people
+   instead of Figma's intended tight single-face close-up. Figma applies a
+   deliberate over-zoomed percentage crop here — same reused-photo crop
+   technique as .hero__media img/.menu-item__media img — confirmed
+   identical across all 4 (placeholder-duplicated) cards via
+   get_design_context, so one rule covers all of them, at both breakpoints
+   (the card is a fixed 380x380 square at both per CLAUDE.md §13, so the
+   crop doesn't need a responsive override). */
 .team-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute;
+  left: -295.8%;
+  top: -48.78%;
+  width: 751.77%;
+  height: 435.92%;
+  max-width: none;
 }
 
 .team-card__name {
@@ -2111,10 +2641,71 @@ h1.hero__title {
 @media (min-width: 1024px) {
   .team-section {
     padding: var(--space-8) 0; /* 100px, Figma-confirmed desktop */
+    /* FLAGGED: Figma-confirmed one-off, not on the 8px scale. The mobile
+       32px gap (var(--space-4), inherited from the base rule) was never
+       overridden here — found by an independent Figma-vs-live audit:
+       heading box ends at y=260 (node 2199:2339, y=100 + h=160), the card
+       row's own unstaggered top sits at y=412 (node 2199:2352), so
+       Figma's real gap is 412-260=152px, not 32px. Cards themselves are
+       absolutely positioned in Figma (not part of the auto-layout that
+       reports "gap-32px" in get_design_context's JSX — that gap value
+       only ever applied to the heading's own wrapper, not the cards), so
+       don't trust that JSX gap number for this section without checking
+       actual node y-offsets, unlike most other sections.
+
+       This is 88px, not the full 152px — 64px of that 152 is deliberately
+       moved onto .team-carousel__viewport's own padding-top instead (see
+       below), so the negative-margin "high" cards (nth-child(even),
+       margin-top:-64px) have room to shift up into rather than escaping
+       above the viewport's box and getting cut off by its
+       overflow:hidden. 88 + 64 = 152, so the *low* cards' final position
+       (which sit at the nominal, unshifted top) is unchanged either way;
+       only the high cards' clipping is affected by how the 152px is
+       split between these two properties. */
+    gap: 88px;
   }
 
+  /* .team-section has no horizontal padding at desktop (the carousel row
+     needs to run edge-to-edge), so without its own width cap this heading
+     stretched across the full 1440px section instead of Figma's 1008px
+     text box — wrapping onto different lines than Figma's actual 2-line
+     break ("ЛЮДИ, ЯКІ СТВОРЮЮТЬ" / "АТМОСФЕРУ"). align-self:center is
+     needed alongside max-width because .team-section is a column flex
+     container with the default align-items:stretch — without it, a
+     shrunk (sub-100%-width) flex item lands flush-left, not centered;
+     text-align:center alone only centers text *within* the title's own
+     box, not the box itself within the section. */
+  .team-section__title {
+    max-width: 1008px;
+    padding: 0;
+    align-self: center;
+  }
+
+  /* var(--space-4) (flat 32px) pinned the first card 32px from the true
+     viewport edge at any width — correct at exactly 1440px, but past that
+     it drifted away from where the site's centered 1440px content column
+     actually starts (confirmed live at 2560px: the row sat far left of
+     every other section's aligned content, including the now-fixed
+     .stats-band above it). gutter-desktop-centered keeps the row's start
+     edge aligned with the rest of the page; the row itself still
+     naturally overflows/scrolls past that on its right, same as before —
+     this only fixes where it *starts*.
+
+     padding-top:64px is the real bug fix here — a flex item's negative
+     margin-top (the even .team-card's -64px stagger) shifts it up
+     visually WITHOUT growing the flex container's own box upward to
+     match (confirmed live: the "high" cards' top edge sat 64px above
+     this viewport's own top edge). Since this viewport is
+     overflow:hidden, that meant the top 64px of every even card was
+     silently clipped — visually flattening the whole row to look
+     unstaggered ("aligned to the top"), which is exactly what was
+     reported. This padding-top gives the box 64px of headroom for the
+     high cards to occupy without ever crossing the box's own edge; the
+     matching -64px was moved off .team-section's gap above so the low
+     (unshifted) cards' final position is unchanged. */
   .team-carousel__viewport {
-    padding: 0 var(--space-4);
+    padding-top: 64px;
+    margin: 0 var(--gutter-desktop-centered);
   }
 
   .team-carousel__track {
@@ -2213,8 +2804,15 @@ h1.hero__title {
 }
 
 @media (min-width: 1024px) {
+  /* Figma's own horizontal gutter here is 40px (--space-5), not the
+     site's usual 32px (--space-4) — so this can't reuse the shared
+     --gutter-desktop-centered token as-is (that would shift the row 8px
+     off Figma's exact position even at exactly 1440px); this mirrors that
+     token's own max()/calc() formula with the correct 40px base instead,
+     so the row still caps at --page-max-width past 1440px like every
+     other section. */
   .photo-strip {
-    padding: var(--space-5);
+    padding: var(--space-5) max(var(--space-5), calc((100% - var(--page-max-width)) / 2 + var(--space-5)));
   }
 
   .photo-strip__viewport {
@@ -2226,9 +2824,358 @@ h1.hero__title {
     gap: var(--space-3);
   }
 
+  /* Fixed 319px (Figma-confirmed, same value already used at mobile — "one
+     consistent set" per the comment above), NOT flex:1. flex:1 coincidentally
+     rendered close to correct at exactly 1440px (its 4-way stretch happened
+     to land near 318px there) but grew far past Figma's fixed width at any
+     wider viewport — confirmed live at 2560px, where the same bug already
+     found and fixed on .about-story__media turned out to exist here too. */
   .photo-strip__item {
-    flex: 1;
-    width: auto;
+    flex-shrink: 0;
+    width: 319px;
     height: 425px;
+  }
+}
+
+/* =========================================================
+   Portfolio page: hero, category filter, gallery, CTA banner
+   ========================================================= */
+
+/* Figma (2158:1822) shows no manual crop offset for this hero — same
+   "own dedicated photo, plain cover fit" case as .hero--about, not the
+   percentage-transform hack Home/Services/Menu need. Only one source
+   photo exists (no separate mobile crop), so a plain object-fit:cover
+   at every breakpoint is already correct. */
+.hero--portfolio .hero__media img {
+  position: static;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  /* The source photo (1280x853, landscape) is much shorter/wider than
+     this hero at short viewport heights (confirmed at 1440x700 — a
+     common laptop window height), so a plain center crop cuts off the
+     standing bartender's head, which sits in the upper portion of the
+     frame. object-position:top keeps the top of the photo in frame
+     (crops from the bottom instead), matching Figma's actual
+     composition — reported by the user, confirmed live. */
+  object-position: center top;
+}
+
+@media (min-width: 1024px) {
+  /* Figma's Event Info Container is a fixed 443px-wide block
+     (node 2213:928) — .hero__meta-text has no width cap by default
+     (other pages' meta text just wraps to whatever .hero__meta's own
+     flex sizing gives it), so this is a page-specific addition, not a
+     shared-component change. */
+  .hero--portfolio .hero__meta-text {
+    max-width: 443px;
+  }
+}
+
+/* Filter tabs (Усі / Весілля / Корпоративи / Дні народження / Бізнес
+   заходи) — reuses .menu-nav's exact visual language (traveling
+   underline, bold+underlined active state, horizontal-scroll on
+   mobile with a hidden scrollbar) since Figma's tab bar uses the same
+   font/weight/size/uppercase treatment. Genuinely a filter (buttons,
+   not links) rather than same-page anchor navigation like .menu-nav,
+   so it's a new BEM block instead of reusing that class directly. Not
+   position:sticky — Figma shows it as a plain static bar right under
+   the hero, not docked while scrolling the gallery below. */
+.portfolio-filter {
+  padding: var(--space-2) 0;
+  background-color: var(--color-cream);
+  border-bottom: 1px solid var(--color-text-on-cream-20);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.portfolio-filter::-webkit-scrollbar {
+  display: none;
+}
+
+/* Figma's mobile bar (2190:2044) is two DISTINCT groups, not one
+   evenly-gapped row: the "Усі" pill, then a separate 16px gap, then the
+   other 4 labels with their own tighter 25px gaps between just
+   themselves. Reproduced as two nested flex groups rather than one
+   `gap` (which could only apply a single uniform value across every
+   item) — confirmed this was the actual cause of the "gaps too big"
+   report: every gap here was rendering at the shared --space-4 (32px)
+   token instead of Figma's real 16px/25px values. */
+.portfolio-filter__track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: max-content;
+  padding: 0 var(--space-gutter-mobile);
+}
+
+.portfolio-filter__group {
+  display: flex;
+  align-items: center;
+  /* Figma-confirmed exact value, not on the 8px spacing scale — FLAGGED
+     one-off, same precedent as other Figma-exact non-token pixel values
+     already in this file (e.g. .team-section's 152px gap). */
+  gap: 25px;
+}
+
+.portfolio-filter__link {
+  position: relative;
+  flex-shrink: 0;
+  /* Horizontal padding stays 0 (Figma's plain labels — the 16px/25px gaps
+     above are the only horizontal spacing), but the vertical padding must
+     match "Усі"/.menu-nav__link's, or the bottom:0 underline below sits
+     glued to the text baseline instead of 8px under it. */
+  padding: var(--space-2) 0;
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-heading-regular);
+  font-size: var(--font-size-nav-button);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-text-on-cream);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+/* "Усі" is Figma's one padded/bordered pill (px-12 py-8) — the other 4
+   are plain unpadded text labels (see .portfolio-filter__link above). */
+.portfolio-filter__link--all {
+  padding: var(--space-2) var(--space-3);
+}
+
+.portfolio-filter__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s ease;
+}
+
+.portfolio-filter__link:hover::after,
+.portfolio-filter__link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.portfolio-filter__link.is-active {
+  font-weight: var(--font-weight-heading-bold);
+}
+
+.portfolio-filter__link.is-active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* One shared underline that travels between tabs (scroll-experience.js
+   creates it and adds .has-indicator). Without JS/GSAP, or under reduced
+   motion, the per-tab ::after above keeps marking the active tab. */
+.portfolio-filter__track {
+  position: relative;
+}
+
+.portfolio-filter__indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--color-text-on-cream);
+  pointer-events: none;
+}
+
+.portfolio-filter.has-indicator .portfolio-filter__link.is-active::after {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .portfolio-filter {
+    overflow-x: visible;
+  }
+
+  /* Figma's desktop tab row (2158:1913) is ONE flat justify-between row
+     across all 5 items, not the mobile two-group structure. The group
+     wrapper is dissolved with display:contents so all 5 buttons become
+     direct flex items of the track and get equal space-between spacing.
+     (The earlier "nested space-between" approximation left "Усі" only
+     16px from the group while the other 4 spread wide — visibly uneven.) */
+  .portfolio-filter__track {
+    width: 100%;
+    padding: 0 var(--gutter-desktop-centered);
+    justify-content: space-between;
+  }
+
+  .portfolio-filter__group {
+    display: contents;
+  }
+}
+
+/* Gallery — real client-side category filtering (.is-hidden toggled
+   per .portfolio-gallery__item by main.js), NOT createLoopCarousel's
+   infinite-clone drag mechanism: that factory captures its card set
+   once at boot and has no supported way to swap it when the active
+   filter changes, and reworking it to support that would touch a
+   shared, already-hardened system (About's team/photo-strip carousels,
+   Home's portfolio slider all depend on it) for a need unique to this
+   one page. A plain scroll-snap row is simpler, has no clone/measure
+   edge cases, and needs zero changes to shared code — a set of hidden
+   items just leaves the remaining ones to reflow/scroll normally. */
+.portfolio-gallery {
+  padding: var(--space-6) 0;
+}
+
+.portfolio-gallery__viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 var(--space-gutter-mobile);
+  /* Without this, `scroll-snap-align:start` on the first item makes the
+     browser's own initial resting scroll position skip past the
+     container's own left padding entirely (confirmed live: scrollLeft
+     defaulted to 20px, the exact padding value, leaving the first card
+     flush against the viewport edge with no gutter) — a known
+     scroll-snap + padding interaction, not something `.photo-strip`
+     hits since that carousel is JS-transform-driven, not native scroll.
+     scroll-padding reserves the gutter as part of the snap area itself,
+     so resting at scrollLeft:0 correctly shows it. */
+  scroll-padding-inline: var(--space-gutter-mobile);
+  scrollbar-width: none;
+}
+
+.portfolio-gallery__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.portfolio-gallery__track {
+  position: relative; /* containing block for items animating out on filter change (scroll-experience.js) */
+  display: flex;
+  gap: var(--space-4);
+}
+
+/* 319×425, Figma-confirmed (same size as the gallery grid's own cards,
+   node 2190:1995 etc. — same precedent as .photo-strip__item). */
+.portfolio-gallery__item {
+  flex-shrink: 0;
+  width: 319px;
+  height: 425px;
+  scroll-snap-align: start;
+}
+
+.portfolio-gallery__item.is-hidden {
+  display: none;
+}
+
+/* The whole photo is a button that opens the gallery lightbox (main.js).
+   It's also the layer scroll-experience.js clip-wipes in and parallaxes
+   on desktop — kept separate from .portfolio-gallery__item, which GSAP
+   Flip moves when the filter changes, so the two transforms never fight. */
+.portfolio-gallery__trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.portfolio-gallery__trigger:focus-visible {
+  outline: 2px solid var(--color-text-on-cream);
+  outline-offset: 3px;
+}
+
+.portfolio-gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-user-drag: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .portfolio-gallery__trigger:hover img {
+    transform: scale(1.06);
+  }
+}
+
+/* Desktop hover cursor ("Переглянути" disc following the pointer over
+   gallery photos) — created and driven by scroll-experience.js; the page
+   only gets .has-gallery-cursor (hiding the native zoom cursor) once that
+   JS is actually running. */
+.gallery-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-cream);
+  color: var(--color-text-on-cream);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-caption);
+  letter-spacing: var(--letter-spacing-tight);
+  text-transform: uppercase;
+  pointer-events: none;
+  transform: scale(0);
+}
+
+.has-gallery-cursor .portfolio-gallery__trigger,
+.has-gallery-cursor .menu-item__media-trigger,
+.has-gallery-cursor .portfolio-highlights__grid .portfolio-card {
+  cursor: none;
+}
+
+/* Home's portfolio slider: while dragging, the disc hides (JS) and the
+   native grabbing cursor comes back. */
+.has-gallery-cursor .is-dragging .portfolio-card {
+  cursor: grabbing;
+}
+
+.portfolio-gallery .carousel-progress,
+.portfolio-gallery .carousel-controls-mobile {
+  margin-left: var(--space-gutter-mobile);
+  margin-right: var(--space-gutter-mobile);
+}
+
+@media (min-width: 1024px) {
+  .portfolio-gallery {
+    padding: var(--space-8) var(--gutter-desktop-centered);
+  }
+
+  .portfolio-gallery__viewport {
+    overflow: visible;
+    padding: 0;
+  }
+
+  /* Figma's static "Усі" mockup shows a fixed 2×4 grid (node
+     2190:2003) — a real filtered gallery needs to reflow to however
+     many items match, so this is a 4-column grid (fluid width via
+     aspect-ratio, not the fixed 319px used at mobile/in the single-row
+     .photo-strip precedent) rather than a fixed-size row. */
+  .portfolio-gallery__track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3) 28px;
+  }
+
+  .portfolio-gallery__item {
+    width: auto;
+    height: auto;
+    aspect-ratio: 319 / 425;
   }
 }

@@ -29,11 +29,21 @@
      staggered GSAP reveal to leave the "Всі послуги" button stuck invisible
      — see the services section-heading row). */
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s ease;
+  /* --btn-magnet-x/y: the magnetic pull toward the cursor (main.js,
+     desktop fine pointer only; 0 everywhere else). Composed into the same
+     transform as the hover lift instead of an inline transform, so neither
+     overrides the other, and the transition above smooths the follow. */
+  transform: translate(var(--btn-magnet-x, 0px), var(--btn-magnet-y, 0px));
 }
 
 .btn:hover,
 .btn:focus-visible {
-  transform: translateY(-2px);
+  transform: translate(var(--btn-magnet-x, 0px), calc(var(--btn-magnet-y, 0px) - 2px));
+}
+
+/* Letting go: a slower, slightly overshooting spring back to rest. */
+.btn.is-magnet-release {
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.35s ease;
 }
 
 .btn--primary,
@@ -278,6 +288,26 @@
   }
 }
 
+/* Same collapse, found at DESKTOP too by an independent Figma-vs-live
+   audit: quick-contact's heading (#quick-contact-heading, `--wide`, no
+   forced <br>) intermittently rendered as a genuinely DOM-split 2-line
+   heading with its box shrunk to ~554px (the width of "ЗАЛИШИЛИСЬ" alone)
+   after enough resizes/navigations in one session — not a forced-<br>
+   collapse like the mobile bug above, but the same underlying mechanism:
+   SplitText's revealHeadingOnEnter can run/re-run before this shrink-to-fit
+   box has settled to its real available width, and once SplitText has
+   restructured the text into line-wrapper elements, the split is baked
+   into the DOM and won't undo itself even once the box would otherwise be
+   wide enough for one line. `--wide` already means "use the section's
+   full width, not a text-optimized cap" — so, unlike the plain (non-wide)
+   title above, there's no desktop look this could accidentally break by
+   stretching unconditionally at both breakpoints, unlike the mobile-only
+   fix above which deliberately preserves a different desktop shrink-fit
+   look for headings that aren't `--wide`. */
+.section-heading--center .section-heading__title--wide {
+  align-self: stretch;
+}
+
 .section-heading--tight {
   margin-bottom: var(--space-4);
 }
@@ -358,8 +388,21 @@
     max-width: 1117px;
   }
 
+  /* `align-self: center` overrides the unconditional `align-self: stretch`
+     that `.section-heading--center .section-heading__title--wide` sets
+     above (added for #quick-contact-heading, which has no width cap of
+     its own — see that rule's comment). #portfolio-heading DOES have its
+     own Figma-confirmed max-width, so stretch was capping it at 1008px
+     but still anchoring it to the flex container's start (left) edge
+     instead of centering it in the remaining space — a real CSS quirk:
+     a stretched flex item clamped by max-width does not re-center itself,
+     it just stops growing. Confirmed live: without this, the heading box
+     sat flush left (x=32) while the centered button/cards below it did
+     not, reading as "off-center" even though the text inside the box was
+     itself correctly text-align:center. */
   #portfolio-heading {
     max-width: 1008px;
+    align-self: center;
   }
 
   #testimonials-heading {
@@ -763,6 +806,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  /* This card lives inside a drag-to-swipe carousel (createLoopCarousel,
+     main.js) — without this, the browser's own native link/image drag
+     (dragstart, ghost-image-follows-cursor) competes with the carousel's
+     custom pointer-drag on the SAME mousedown-move-up gesture, and a
+     real click (mousedown, tiny move, mouseup) can get eaten by that
+     native drag instead of firing a click at all. Reported live: worked
+     via middle-click or with DevTools open (both suppress the native
+     drag heuristic), never via a plain left click. -webkit-user-drag is
+     the reliable belt-and-suspenders on top of the `draggable="false"`
+     HTML attribute already on these `<a>`/`<img>` elements. */
+  -webkit-user-drag: none;
+}
+
+.portfolio-card img {
+  -webkit-user-drag: none;
 }
 
 .portfolio-card__media {
@@ -1015,6 +1073,15 @@
   gap: var(--space-1);
 }
 
+/* Contacts page: "Instagram / Facebook" on one line (Figma). */
+.contact-tile__social-links--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
 .contact-tile__social-link {
   position: relative;
   width: fit-content;
@@ -1131,6 +1198,82 @@
   border-color: var(--color-dark-olive);
 }
 
+/* Select / textarea / date / number variants of .form-field__input —
+   Contacts page's extended form only. base.css's input/textarea reset
+   doesn't cover <select>, so it gets the same box here by hand, plus
+   appearance:none and a thin currentColor chevron (Figma draws no arrow,
+   but a select with no affordance at all reads as a plain text field). */
+.form-field__select {
+  position: relative;
+}
+
+.form-field__select::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-75%) rotate(45deg);
+  pointer-events: none;
+}
+
+select.form-field__input {
+  width: 100%;
+  appearance: none;
+  border: 1px solid var(--color-text-on-cream-20);
+  border-radius: 0;
+  padding: var(--space-2) var(--space-6) var(--space-2) var(--space-2);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-body);
+  color: var(--color-text-on-cream);
+  background-color: transparent;
+  cursor: pointer;
+}
+
+/* Nothing chosen yet = the "Оберіть тип заходу" option: muted like a
+   placeholder. <option>s themselves keep the full text color. */
+select.form-field__input:has(option[value='']:checked),
+input[type='date'].form-field__input.is-empty {
+  color: var(--color-text-on-cream-70);
+}
+
+select.form-field__input option {
+  color: var(--color-text-on-cream);
+}
+
+textarea.form-field__input {
+  height: 112px;
+  min-height: 112px;
+  resize: vertical;
+  line-height: var(--line-height-body);
+}
+
+input[type='number'].form-field__input {
+  appearance: textfield;
+}
+
+input[type='number'].form-field__input::-webkit-inner-spin-button,
+input[type='number'].form-field__input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Chrome's date editor adds its own vertical padding — without this the
+   field renders 2px taller than its text-input neighbours in the row. */
+input[type='date'].form-field__input::-webkit-datetime-edit,
+input[type='date'].form-field__input::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type='date'].form-field__input::-webkit-calendar-picker-indicator {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
 /* =========================================================
    Quick contact form ("Швидка заявка")
    ========================================================= */
@@ -1202,6 +1345,47 @@
 
   .quick-form__submit {
     padding: 20px var(--space-5);
+  }
+}
+
+/* Two fields side by side (Contacts: name+phone, guests+date). --stack-mobile
+   collapses to one column below 1024px — Figma's 428px frame stacks
+   name/phone but keeps guests/date as a pair. */
+.quick-form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 1023.98px) {
+  .quick-form__row--stack-mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Contacts page's full "Залишіть заявку" form: same component, framed by a
+   hairline border (Figma) instead of sitting on a dark section. Mobile
+   title is Cormorant Medium in Figma — Regular 400 is the closest loaded
+   weight (same call as h1.hero__title); mobile button is 16px bold. */
+.quick-form--contacts {
+  border: 1px solid var(--color-text-on-cream-20);
+}
+
+@media (max-width: 1023.98px) {
+  .quick-form--contacts .quick-form__title {
+    font-weight: var(--font-weight-heading-regular);
+  }
+
+  .quick-form--contacts .quick-form__submit {
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-heading-bold);
+    padding: var(--space-2);
+  }
+}
+
+@media (min-width: 1024px) {
+  .quick-form--contacts .quick-form__title {
+    line-height: var(--line-height-tight);
   }
 }
 
@@ -1301,6 +1485,191 @@
 @media (prefers-reduced-motion: reduce) {
   .contact-modal,
   .contact-modal__panel {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   Photo lightbox — Menu page food photos
+
+   A second, unrelated [data-modal] instance reusing the exact same
+   generic open/close/focus-trap/Escape/Lenis-stop mechanism in main.js as
+   .contact-modal (see CLAUDE.md §10) — that system is keyed by
+   data-modal="<name>" / data-modal-open="<name>" and already falls back to
+   the modal root itself when no `.contact-modal__panel`-named child
+   exists, so no JS changes were needed there. A small, separate capture-
+   phase click listener in main.js only copies the clicked photo's
+   src/alt into .photo-lightbox__image before the generic system opens it.
+   ========================================================= */
+
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: var(--color-overlay-scrim);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s;
+}
+
+.photo-lightbox[hidden] {
+  display: none;
+}
+
+.photo-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  /* visibility flips instantly on open (the 0.35s visibility transition
+     only matters on close, to keep it shown while fading out). Otherwise
+     it's still `hidden` at the instant main.js focuses the close button,
+     and the browser silently drops that focus() — focus stayed on the
+     page behind the open lightbox. */
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+.photo-lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transform: scale(0.97);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+.photo-lightbox.is-open .photo-lightbox__image {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.photo-lightbox__close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--color-text-on-dark);
+}
+
+.photo-lightbox__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Gallery variant (Portfolio): same generic [data-modal] system, plus a
+   prev/next + counter row for stepping through the currently-filtered
+   photos (main.js). The panel only wraps the photo + controls, so a click
+   on the surrounding scrim still reaches the modal root and closes it. */
+.photo-lightbox--gallery {
+  background-color: var(--color-overlay-scrim-strong);
+  --lightbox-pad-top: var(--space-7);
+  --lightbox-pad-bottom: var(--space-3);
+  --lightbox-controls-h: 48px; /* = .photo-lightbox__nav height */
+  padding: var(--lightbox-pad-top) var(--space-2) var(--lightbox-pad-bottom);
+}
+
+.photo-lightbox__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+}
+
+.photo-lightbox--gallery .photo-lightbox__image {
+  min-height: 0;
+  /* Photo + controls row must fit one screen: viewport minus both
+     paddings, the panel gap and the controls row. A FIXED height (not just
+     max-height) so every photo gets the same frame regardless of its file
+     resolution — some gallery sources are only 378px wide and would
+     otherwise render tiny. object-fit:contain (base rule) letterboxes when
+     max-width wins on narrow screens; scroll-experience.js measures the
+     contained content box for its expand/collapse math. */
+  height: calc(100vh - var(--lightbox-pad-top) - var(--lightbox-pad-bottom) - var(--space-3) - var(--lightbox-controls-h));
+  max-height: none;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Portfolio lightbox WebGL photo-change layer (js/webgl-fx.js): placed by JS
+   exactly over the photo for the length of one transition, then hidden. */
+.photo-lightbox__webgl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.photo-lightbox__webgl.is-active {
+  visibility: visible;
+}
+
+.photo-lightbox__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--color-text-on-dark);
+}
+
+.photo-lightbox__nav {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-text-on-dark-20);
+  border-radius: 50%;
+  color: inherit;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.photo-lightbox__nav:hover {
+  border-color: var(--color-text-on-dark-60);
+}
+
+.photo-lightbox__nav:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.photo-lightbox__counter {
+  min-width: 4.5em;
+  font-family: var(--font-body);
+  font-size: var(--font-size-caption);
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: var(--color-text-on-dark-70);
+}
+
+@media (min-width: 1024px) {
+  .photo-lightbox--gallery {
+    --lightbox-pad-top: var(--space-6);
+    --lightbox-pad-bottom: var(--space-4);
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-lightbox,
+  .photo-lightbox__image,
+  .photo-lightbox__nav {
     transition: none;
   }
 }

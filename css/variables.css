@@ -21,6 +21,7 @@
   --overlay-gradient-hero: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
   --overlay-tint-cta-mobile: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22));
   --color-overlay-scrim: rgba(51, 55, 41, 0.7); /* global contact-modal backdrop */
+  --color-overlay-scrim-strong: rgba(51, 55, 41, 0.96); /* portfolio gallery lightbox — photo needs a near-solid backdrop */
   --color-text-quote: #1a1a1a;        /* FLAGGED: About page pull-quote, Figma-confirmed one-off */
   --color-text-quote-attribution: #7a7568; /* FLAGGED: About page pull-quote attribution */
 
@@ -63,6 +64,13 @@
   --space-panel-gap-mobile: 20px;   /* FLAGGED: mobile service-panel body internal gap */
   --space-menu-item-gap-mobile: 12px; /* FLAGGED: mobile menu-item title/price/desc stack gap */
   --space-menu-item-tight: 4px;        /* FLAGGED: menu-item desc-to-weight gap, both breakpoints */
+
+  /* .site-header's own rendered height per breakpoint (measured, not a
+     Figma value) — .hero subtracts this so header + hero together fill
+     exactly one screen instead of hero's own 100vh pushing its bottom
+     content past the fold. */
+  --header-height-mobile: 72px;
+  --header-height-desktop: 96px;
 
   /* ===== Typography: font families ===== */
   --font-heading: 'Cormorant Garamond', serif;

@@ -2,6 +2,15 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<!-- Page-transition opt-in: must be INLINE and first in <head>, not in base.css —
+     Chrome decides whether the incoming page accepts the transition before
+     external stylesheets finish loading (~half of forward navigations were
+     skipped). Copy this line into every new page. See CHANGELOG.md. -->
+<style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+<!-- Reload curtain: View Transitions never run on a reload, so this tags <html>
+     for base.css's hand-made copy of the same curtain. Inline + first, so the
+     class exists before the first paint. Copy into every new page. -->
+<script>try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&matchMedia('(prefers-reduced-motion: no-preference)').matches)document.documentElement.classList.add('is-reloading');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Послуги кейтерингу — банкет, фуршет, кейтеринг-бокси, кенді-бар | Veranda by Voloshyn</title>
 <meta name="description" content="Чотири формати кейтерингу Veranda by Voloshyn: банкет, фуршет, кейтеринг-бокси та кенді-бар/коктейль-бар. Оберіть формат під ваш захід — розрахуємо вартість під кількість гостей і сценарій.">
@@ -18,11 +27,11 @@
 <header class="site-header">
   <div class="site-header__bar">
     <a class="site-header__logo" href="index.html">
-      <img class="site-header__logo-image" src="assets/images/logo-mark.png" alt="Veranda by Voloshyn">
+      <img class="site-header__logo-image" src="assets/images/logo-mark.webp" alt="Veranda by Voloshyn">
     </a>
     <nav class="site-header__nav" aria-label="Основна навігація">
       <ul class="site-header__nav-list">
-        <li><a class="site-header__nav-link" href="services.html">Послуги</a></li>
+        <li><a class="site-header__nav-link" href="services.html" aria-current="page">Послуги</a></li>
         <li><a class="site-header__nav-link" href="menu.html">Меню</a></li>
         <li><a class="site-header__nav-link" href="about.html">Про нас</a></li>
         <li><a class="site-header__nav-link" href="portfolio.html">Портфоліо</a></li>
@@ -43,7 +52,7 @@
     </button>
     <nav aria-label="Мобільна навігація">
       <ul class="site-header__mobile-nav-list">
-        <li><a class="site-header__mobile-nav-link" href="services.html">Послуги</a></li>
+        <li><a class="site-header__mobile-nav-link" href="services.html" aria-current="page">Послуги</a></li>
         <li><a class="site-header__mobile-nav-link" href="menu.html">Меню</a></li>
         <li><a class="site-header__mobile-nav-link" href="about.html">Про нас</a></li>
         <li><a class="site-header__mobile-nav-link" href="portfolio.html">Портфоліо</a></li>
@@ -56,10 +65,10 @@
 <main>
 
   <section class="hero hero--services" data-hero>
-    <div class="hero__media" data-hero-media>
+    <div class="hero__media" data-hero-media data-hero-reveal="glass">
       <picture>
-        <source media="(min-width: 1024px)" srcset="assets/images/services-hero-canape-rolls-desktop.jpg">
-        <img src="assets/images/services-hero-canape-rolls-mobile.png" alt="Канапе-ролети з лососем на фуршетному столі Veranda by Voloshyn">
+        <source media="(min-width: 1024px)" srcset="assets/images/services-hero-canape-rolls-desktop.webp">
+        <img src="assets/images/services-hero-canape-rolls-mobile.webp" alt="Канапе-ролети з лососем на фуршетному столі Veranda by Voloshyn">
       </picture>
     </div>
     <div class="hero__content" data-hero-content>
@@ -76,10 +85,14 @@
       <h2 class="section-heading__title" id="services-heading">Оберіть формат<br class="u-br-mobile"> під ваш захід</h2>
     </div>
 
+    <!-- PROVISIONAL photos: Figma uses service-banquet-longtable.jpg on all
+         4 formats; Фуршет/Кейтеринг-бокси/Кенді-бар use existing, distinct
+         project photos as stand-ins (user-approved 2026-09-22) until real
+         per-format photos are provided. -->
     <div class="service-detail-list">
       <article class="service-detail">
-        <div class="service-detail__media">
-          <img src="assets/images/service-banquet-longtable.jpg" alt="Сервірований стіл на банкеті Veranda by Voloshyn">
+        <div class="service-detail__media service-detail__media--longtable">
+          <img src="assets/images/service-banquet-longtable.webp" alt="Сервірований стіл на банкеті Veranda by Voloshyn">
         </div>
         <div class="service-detail__body">
           <div class="service-panel__content">
@@ -106,7 +119,7 @@
 
       <article class="service-detail service-detail--reverse">
         <div class="service-detail__media">
-          <img src="assets/images/service-banquet-longtable.jpg" alt="Фуршетний стіл Veranda by Voloshyn">
+          <img src="assets/images/portfolio-corporate-buffet-web.jpg" alt="Фуршетний стіл Veranda by Voloshyn">
         </div>
         <div class="service-detail__body">
           <div class="service-panel__content">
@@ -133,7 +146,7 @@
 
       <article class="service-detail">
         <div class="service-detail__media">
-          <img src="assets/images/service-banquet-longtable.jpg" alt="Кейтеринг-бокси Veranda by Voloshyn">
+          <img src="assets/images/testimonial-lunchboxes-portrait.webp" alt="Кейтеринг-бокси Veranda by Voloshyn">
         </div>
         <div class="service-detail__body">
           <div class="service-panel__content">
@@ -160,7 +173,7 @@
 
       <article class="service-detail service-detail--reverse">
         <div class="service-detail__media">
-          <img src="assets/images/service-banquet-longtable.jpg" alt="Кенді-бар та коктейль-бар Veranda by Voloshyn">
+          <img src="assets/images/portfolio-birthday-lemonade-web.jpg" alt="Кенді-бар та коктейль-бар Veranda by Voloshyn">
         </div>
         <div class="service-detail__body">
           <div class="service-panel__content">
@@ -233,7 +246,7 @@
 
   <section class="cta-banner cta-banner--services" aria-labelledby="cta-banner-heading">
     <div class="cta-banner__media">
-      <img src="assets/images/services-cta-berries-bowls.png" alt="">
+      <img src="assets/images/services-cta-berries-bowls.webp" alt="">
     </div>
     <h2 class="hero__title" id="cta-banner-heading">Не визначились із форматом?</h2>
     <p class="cta-banner__text">Розкажіть про ваш захід — підберемо оптимальний варіант і розрахуємо вартість</p>
@@ -248,10 +261,10 @@
     <div class="site-footer__brand">
       <p class="site-footer__brand-name">Veranda by Voloshyn</p>
       <p class="site-footer__tagline">Кейтеринг, який створює атмосферу</p>
-      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.png" alt="">
+      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.webp" alt="">
     </div>
     <div class="site-footer__columns">
-      <img class="site-footer__mobile-decor" src="assets/images/logo.png" alt="" aria-hidden="true">
+      <img class="site-footer__mobile-decor" src="assets/images/logo.webp" alt="" aria-hidden="true">
       <div class="site-footer__column">
         <p class="site-footer__column-title">Навігація</p>
         <ul class="site-footer__column-list">
@@ -280,10 +293,10 @@
     </div>
     <div class="site-footer__decor" aria-hidden="true">
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--a">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--b">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
     </div>
   </div>
@@ -323,5 +336,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script><script src="js/scroll-experience.js"></script>
+<script src="js/webgl-fx.js"></script>
 </body>
 </html>

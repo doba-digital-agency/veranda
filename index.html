@@ -2,6 +2,15 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<!-- Page-transition opt-in: must be INLINE and first in <head>, not in base.css —
+     Chrome decides whether the incoming page accepts the transition before
+     external stylesheets finish loading (~half of forward navigations were
+     skipped). Copy this line into every new page. See CHANGELOG.md. -->
+<style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+<!-- Reload curtain: View Transitions never run on a reload, so this tags <html>
+     for base.css's hand-made copy of the same curtain. Inline + first, so the
+     class exists before the first paint. Copy into every new page. -->
+<script>try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&matchMedia('(prefers-reduced-motion: no-preference)').matches)document.documentElement.classList.add('is-reloading');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Veranda by Voloshyn — кейтеринг на весілля, корпоративи та свята</title>
 <meta name="description" content="Кейтеринг Veranda by Voloshyn у Мукачеві: банкети, фуршети, кейтеринг-бокси та кенді-бари під ключ — меню, сервірування й обслуговування гостей для будь-якого формату заходу.">
@@ -18,7 +27,7 @@
 <header class="site-header">
   <div class="site-header__bar">
     <a class="site-header__logo" href="index.html">
-      <img class="site-header__logo-image" src="assets/images/logo-mark.png" alt="Veranda by Voloshyn">
+      <img class="site-header__logo-image" src="assets/images/logo-mark.webp" alt="Veranda by Voloshyn">
     </a>
     <nav class="site-header__nav" aria-label="Основна навігація">
       <ul class="site-header__nav-list">
@@ -56,8 +65,8 @@
 <main>
 
   <section class="hero" data-hero>
-    <div class="hero__media" data-hero-media>
-      <img src="assets/images/hero-buffet-gladiolus.jpg" alt="Фуршетний стіл із канапе, брускетами та білими гладіолусами на заході Veranda by Voloshyn">
+    <div class="hero__media" data-hero-media data-hero-reveal="cloche">
+      <img src="assets/images/hero-buffet-gladiolus.webp" alt="Фуршетний стіл із канапе, брускетами та білими гладіолусами на заході Veranda by Voloshyn">
     </div>
     <div class="hero__content" data-hero-content>
       <h1 class="hero__title" id="hero-title">Кейтеринг, який створює атмосферу</h1>
@@ -90,7 +99,7 @@
     <div class="service-picker__stage" data-carousel>
       <article class="service-panel" data-carousel-slide>
         <div class="service-panel__media">
-          <img data-carousel-image src="assets/images/service-banquet-longtable.jpg" alt="Сервірований стіл на банкеті Veranda by Voloshyn">
+          <img data-carousel-image src="assets/images/service-banquet-longtable.webp" alt="Сервірований стіл на банкеті Veranda by Voloshyn">
         </div>
         <div class="service-panel__body">
           <div class="service-panel__content">
@@ -130,7 +139,7 @@
     <div class="menu-highlights__grid">
       <article class="dish-card">
         <div class="dish-card__media">
-          <img src="assets/images/menu-bruschetta-tomato-burrata.jpg" alt="Брускета з томатами і буратою">
+          <img src="assets/images/menu-bruschetta-tomato-burrata.webp" alt="Брускета з томатами і буратою">
         </div>
         <div class="dish-card__body">
           <div class="dish-card__group">
@@ -148,7 +157,7 @@
       </article>
       <article class="dish-card">
         <div class="dish-card__media">
-          <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+          <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
         </div>
         <div class="dish-card__body">
           <div class="dish-card__group">
@@ -166,7 +175,7 @@
       </article>
       <article class="dish-card">
         <div class="dish-card__media">
-          <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+          <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
         </div>
         <div class="dish-card__body">
           <div class="dish-card__group">
@@ -184,7 +193,7 @@
       </article>
       <article class="dish-card">
         <div class="dish-card__media">
-          <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+          <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
         </div>
         <div class="dish-card__body">
           <div class="dish-card__group">
@@ -238,12 +247,12 @@
         </svg>
       </article>
     </div>
-    <img class="why-us__decor" src="assets/images/decorative-babys-breath.png" alt="" aria-hidden="true">
+    <img class="why-us__decor" src="assets/images/decorative-babys-breath.webp" alt="" aria-hidden="true">
   </section>
 
   <section class="cta-banner" aria-labelledby="cta-banner-heading">
     <div class="cta-banner__media">
-      <img src="assets/images/cta-banner-desserts.png" alt="">
+      <img src="assets/images/cta-banner-desserts.webp" alt="">
     </div>
     <h2 class="hero__title" id="cta-banner-heading">Плануєте захід?</h2>
     <p class="cta-banner__text">Залиште заявку — розрахуємо вартість під формат, кількість гостей і локацію</p>
@@ -259,7 +268,7 @@
       </div>
     </div>
     <div class="about-teaser__media">
-      <img src="assets/images/about-team-group-photo.jpg" alt="Команда Veranda by Voloshyn на заході з фуршетним столом">
+      <img src="assets/images/about-team-group-photo.webp" alt="Команда Veranda by Voloshyn на заході з фуршетним столом">
     </div>
   </section>
 
@@ -277,37 +286,37 @@
       </div>
     </div>
     <!--
-      Each card links to the future Services page (not built yet) at a
-      stable anchor matching its own category — services.html will later
-      need a section/card carrying the SAME id for each slug below:
-        Весілля       -> #vesillya
-        Корпоратив    -> #korporatyv
-        День народження -> #den-narodzhennya
-        Бізнес-захід  -> #biznes-zakhid
+      Each card links to portfolio.html pre-filtered to its own category
+      via ?category=<slug> (portfolio.html's filter tabs read this on
+      load — see js/main.js). Slugs match that page's filter buttons:
+        Весілля       -> vesillya
+        Корпоратив    -> korporatyv
+        День народження -> den-narodzhennya
+        Бізнес-захід  -> biznes-zakhid
     -->
     <div class="portfolio-carousel__viewport" data-portfolio-carousel>
       <div class="portfolio-highlights__grid" data-portfolio-track>
-        <a class="portfolio-card" href="services.html#vesillya">
+        <a class="portfolio-card" href="portfolio.html?category=vesillya" draggable="false">
           <div class="portfolio-card__media">
-            <img src="assets/images/portfolio-wedding-gladiolus.jpg" alt="Виїзний банкет на весіллі">
+            <img src="assets/images/portfolio-wedding-gladiolus-web.jpg" alt="Виїзний банкет на весіллі" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="portfolio-card__caption">Весілля</p>
         </a>
-        <a class="portfolio-card" href="services.html#korporatyv">
+        <a class="portfolio-card" href="portfolio.html?category=korporatyv" draggable="false">
           <div class="portfolio-card__media">
-            <img src="assets/images/portfolio-corporate-buffet.jpg" alt="Кейтеринг на корпоративному заході">
+            <img src="assets/images/portfolio-corporate-buffet-web.jpg" alt="Кейтеринг на корпоративному заході" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="portfolio-card__caption">Корпоратив</p>
         </a>
-        <a class="portfolio-card" href="services.html#den-narodzhennya">
+        <a class="portfolio-card" href="portfolio.html?category=den-narodzhennya" draggable="false">
           <div class="portfolio-card__media">
-            <img src="assets/images/portfolio-birthday-lemonade.jpg" alt="Святковий стіл на дні народження">
+            <img src="assets/images/portfolio-birthday-lemonade-web.jpg" alt="Святковий стіл на дні народження" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="portfolio-card__caption">День народження</p>
         </a>
-        <a class="portfolio-card" href="services.html#biznes-zakhid">
+        <a class="portfolio-card" href="portfolio.html?category=biznes-zakhid" draggable="false">
           <div class="portfolio-card__media">
-            <img src="assets/images/portfolio-business-charcuterie.jpg" alt="Обслуговування бізнес-заходу">
+            <img src="assets/images/portfolio-business-charcuterie-web.jpg" alt="Обслуговування бізнес-заходу" loading="lazy" decoding="async" draggable="false">
           </div>
           <p class="portfolio-card__caption">Бізнес-захід</p>
         </a>
@@ -322,8 +331,8 @@
       <article class="testimonial">
         <div class="testimonial__media">
           <picture>
-            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-canape-tower-landscape.png">
-            <img src="assets/images/testimonial-canape-tower-portrait.png" alt="Багатоярусна тарелька з канапе на фуршеті">
+            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-canape-tower-landscape.webp">
+            <img src="assets/images/testimonial-canape-tower-portrait.webp" alt="Багатоярусна тарелька з канапе на фуршеті">
           </picture>
         </div>
         <div class="testimonial__body">
@@ -335,8 +344,8 @@
       <article class="testimonial">
         <div class="testimonial__media">
           <picture>
-            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-candlelit-table-landscape.png">
-            <img src="assets/images/testimonial-candlelit-table-portrait.png" alt="Сервірований стіл на весіллі при свічках">
+            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-candlelit-table-landscape.webp">
+            <img src="assets/images/testimonial-candlelit-table-portrait.webp" alt="Сервірований стіл на весіллі при свічках">
           </picture>
         </div>
         <div class="testimonial__body">
@@ -348,8 +357,8 @@
       <article class="testimonial">
         <div class="testimonial__media">
           <picture>
-            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-lunchboxes-landscape.png">
-            <img src="assets/images/testimonial-lunchboxes-portrait.png" alt="Кейтеринг-бокси для офісного заходу">
+            <source media="(min-width: 1024px)" srcset="assets/images/testimonial-lunchboxes-landscape.webp">
+            <img src="assets/images/testimonial-lunchboxes-portrait.webp" alt="Кейтеринг-бокси для офісного заходу">
           </picture>
         </div>
         <div class="testimonial__body">
@@ -360,7 +369,7 @@
       </article>
       </div>
     </div>
-    <img class="testimonials__decor" src="assets/images/decorative-cornflower-branch.png" alt="" aria-hidden="true">
+    <img class="testimonials__decor" src="assets/images/decorative-cornflower-branch.webp" alt="" aria-hidden="true">
   </section>
 
   <section class="section section--dark quick-contact" id="quick-contact" aria-labelledby="quick-contact-heading">
@@ -419,10 +428,10 @@
     <div class="site-footer__brand">
       <p class="site-footer__brand-name">Veranda by Voloshyn</p>
       <p class="site-footer__tagline">Кейтеринг, який створює атмосферу</p>
-      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.png" alt="">
+      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.webp" alt="">
     </div>
     <div class="site-footer__columns">
-      <img class="site-footer__mobile-decor" src="assets/images/logo.png" alt="" aria-hidden="true">
+      <img class="site-footer__mobile-decor" src="assets/images/logo.webp" alt="" aria-hidden="true">
       <div class="site-footer__column">
         <p class="site-footer__column-title">Навігація</p>
         <ul class="site-footer__column-list">
@@ -451,10 +460,10 @@
     </div>
     <div class="site-footer__decor" aria-hidden="true">
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--a">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--b">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
     </div>
   </div>
@@ -494,5 +503,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script><script src="js/scroll-experience.js"></script>
+<script src="js/webgl-fx.js"></script>
 </body>
 </html>

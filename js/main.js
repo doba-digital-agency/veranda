@@ -84,28 +84,28 @@
       desc: 'Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.',
       guests: 'від 20 гостей',
       service: 'повний сервіс',
-      image: 'assets/images/service-banquet-longtable.jpg'
+      image: 'assets/images/service-banquet-longtable.webp'
     },
     {
       title: 'Фуршет',
       desc: 'Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.',
       guests: 'від 20 гостей',
       service: 'повний сервіс',
-      image: 'assets/images/service-banquet-longtable.jpg'
+      image: 'assets/images/service-banquet-longtable.webp'
     },
     {
       title: 'Кейтеринг-бокси',
       desc: 'Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.',
       guests: 'від 20 гостей',
       service: 'повний сервіс',
-      image: 'assets/images/service-banquet-longtable.jpg'
+      image: 'assets/images/service-banquet-longtable.webp'
     },
     {
       title: 'Кенді-бар / коктейль-бар',
       desc: 'Класичне святкування за столами з повним сервісом офіціантів — для весіль, ювілеїв і корпоративів.',
       guests: 'від 20 гостей',
       service: 'повний сервіс',
-      image: 'assets/images/service-banquet-longtable.jpg'
+      image: 'assets/images/service-banquet-longtable.webp'
     }
   ];
 
@@ -272,6 +272,8 @@
   var SNAP_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   var DRAG_THRESHOLD = 6; // px of pointer movement before a press counts as a drag rather than a click
   var REPEATS = 2; // clone sets on each side of the real one — drag/loop buffer
+  var MAX_SKEW = 8; // deg — cards lean with drag velocity (see feedSkew)
+  var SKEW_PER_VELOCITY = 5; // deg per px/ms of pointer speed
 
   function createLoopCarousel(config) {
     var viewport = document.querySelector(config.viewport);
@@ -306,6 +308,52 @@
     var recenterTimer = null;
     var active = false;
     var segments = [];
+
+    // Velocity skew: while dragging, the cards lean with the pointer's
+    // speed (top trailing behind, like something with weight) and settle
+    // back once it slows. Only ever writes --carousel-skew on the track;
+    // the cards' own CSS transform reads it (.has-velocity-skew,
+    // components.css), so the track's translateX above stays the only
+    // transform this factory sets inline. Skipped under reduced motion.
+    var skew = 0;
+    var skewTarget = 0;
+    var skewRaf = null;
+    var lastMoveX = 0;
+    var lastMoveT = 0;
+
+    function renderSkew() {
+      skewTarget *= 0.85;
+      skew += (skewTarget - skew) * 0.25;
+      if (Math.abs(skew) < 0.02 && Math.abs(skewTarget) < 0.02) {
+        skew = 0;
+        skewRaf = null;
+        track.style.removeProperty('--carousel-skew');
+        return;
+      }
+      track.style.setProperty('--carousel-skew', skew.toFixed(2) + 'deg');
+      skewRaf = window.requestAnimationFrame(renderSkew);
+    }
+
+    function kickSkew(deg) {
+      if (reduceMotion) return;
+      skewTarget = Math.max(-MAX_SKEW, Math.min(MAX_SKEW, deg));
+      if (!skewRaf) skewRaf = window.requestAnimationFrame(renderSkew);
+    }
+
+    function feedSkew(x) {
+      var now = window.performance.now();
+      var dt = now - lastMoveT;
+      if (dt > 0 && dt < 100) kickSkew((x - lastMoveX) / dt * SKEW_PER_VELOCITY);
+      lastMoveX = x;
+      lastMoveT = now;
+    }
+
+    function resetSkew() {
+      if (skewRaf) window.cancelAnimationFrame(skewRaf);
+      skewRaf = null;
+      skew = skewTarget = 0;
+      track.style.removeProperty('--carousel-skew');
+    }
 
     function buildProgress() {
       if (!progress) return;
@@ -354,6 +402,8 @@
       originalCards.forEach(function (card) { track.appendChild(card); });
       track.style.transition = 'none';
       track.style.transform = '';
+      track.classList.remove('has-velocity-skew');
+      resetSkew();
       step = 0;
       setWidth = 0;
       homeOffset = 0;
@@ -401,6 +451,8 @@
       if (!active || !step) return;
       offset -= n * step;
       applyTransform(offset, true);
+      // A button press leans the cards the same way a quick drag would.
+      kickSkew(-n * 3);
       updateProgress();
       window.clearTimeout(recenterTimer);
       recenterTimer = window.setTimeout(recenter, SNAP_MS + 30);
@@ -420,20 +472,30 @@
       activePointerId = e.pointerId;
       dragStartX = e.clientX;
       dragStartOffset = offset;
+      lastMoveX = e.clientX;
+      lastMoveT = window.performance.now();
       window.clearTimeout(recenterTimer);
       track.style.transition = 'none';
       viewport.classList.add('is-dragging');
-      if (viewport.setPointerCapture) {
-        try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
-      }
+      // Pointer capture is deliberately NOT taken here — see onPointerMove.
     }
 
     function onPointerMove(e) {
       if (!isDragging || e.pointerId !== activePointerId) return;
       var dx = e.clientX - dragStartX;
+      var wasBelowThreshold = pointerMoved <= DRAG_THRESHOLD;
       pointerMoved = Math.max(pointerMoved, Math.abs(dx));
+      // Capture only once the press has become a real drag. Capturing on
+      // pointerdown retargets the follow-up `click` to the viewport itself
+      // (Chromium dispatches click to the capture target), so a plain click
+      // on a card that is an <a> (Home's portfolio cards) never reached the
+      // link and never navigated.
+      if (wasBelowThreshold && pointerMoved > DRAG_THRESHOLD && viewport.setPointerCapture) {
+        try { viewport.setPointerCapture(e.pointerId); } catch (err) {}
+      }
       offset = dragStartOffset + dx;
       applyTransform(offset, false);
+      feedSkew(e.clientX);
     }
 
     function suppressClickOnce(e) {
@@ -473,6 +535,7 @@
       if (active) return;
       active = true;
       buildTrack();
+      if (!reduceMotion) track.classList.add('has-velocity-skew');
       buildProgress();
       measure();
       offset = homeOffset;
@@ -560,17 +623,29 @@
 
       event.preventDefault();
 
-      // If this link lives inside a sticky nav (marked generically with
-      // data-sticky-nav — currently just Menu's category bar, but not
+      // The site header is fixed (always covers the top of the viewport),
+      // so every same-page anchor scroll needs to leave room for it or the
+      // target's own heading lands partly hidden underneath it. On top of
+      // that, if this link lives inside a sticky nav (marked generically
+      // with data-sticky-nav — currently just Menu's category bar, but not
       // hardcoded to it by name so any future sticky nav gets the same
-      // treatment for free), scrolling the target flush to the viewport
-      // top would land its heading right underneath that nav instead of
-      // below it. Measured live (not a fixed guess) since the sticky
-      // nav's own height differs by breakpoint (wraps to more/less
-      // padding, font-size, etc.) and could change independently of this
-      // file.
+      // treatment for free), that nav docks directly under the header once
+      // it starts sticking, so its height needs reserving too. Both
+      // measured live (not a fixed guess), since either can differ by
+      // breakpoint (wraps to more/less padding, font-size, etc.) and could
+      // change independently of this file.
+      var header = document.querySelector('.site-header');
+      var headerOffset = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
       var stickyNav = link.closest('[data-sticky-nav]');
-      var offset = stickyNav ? Math.ceil(stickyNav.getBoundingClientRect().height) : 0;
+      var navOffset = stickyNav ? Math.ceil(stickyNav.getBoundingClientRect().height) : 0;
+      // The header hides on the way down (hide-on-scroll module below), so
+      // reserve its height only if it will still be showing on arrival —
+      // otherwise the target would land with an empty header-sized gap
+      // above it (and any sticky nav has moved up to the viewport top).
+      var dest = target.getBoundingClientRect().top + window.scrollY - headerOffset - navOffset;
+      var headerApi = window.__verandaHeader;
+      if (headerApi && !headerApi.visibleAt(dest)) headerOffset = 0;
+      var offset = headerOffset + navOffset;
 
       // Checked at click time, not at listener-attach time (this file
       // loads before Lenis — see the script-order rule in CLAUDE.md/
@@ -781,6 +856,22 @@
     var successEl = form.querySelector('[data-form-success]');
     var errorEl = form.querySelector('[data-form-error]');
 
+    // Empty <input type="date"> still renders its "дд.мм.рррр" mask as
+    // real text (no ::placeholder to style), so mark it for the muted
+    // placeholder color in CSS. Contacts page only; no-op elsewhere.
+    var dateInputs = form.querySelectorAll('input[type="date"]');
+    function syncDateEmpty() {
+      dateInputs.forEach(function (input) {
+        input.classList.toggle('is-empty', !input.value);
+      });
+    }
+    if (dateInputs.length) {
+      syncDateEmpty();
+      form.addEventListener('input', syncDateEmpty);
+      form.addEventListener('change', syncDateEmpty);
+      form.addEventListener('reset', function () { setTimeout(syncDateEmpty, 0); });
+    }
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
@@ -792,6 +883,32 @@
       if (isValid) form.reset();
     });
   });
+})();
+
+/*
+  Photo lightbox content sync — Menu page food photos. The actual open/
+  close/focus-trap/Escape/Lenis-stop behavior is entirely owned by the
+  generic [data-modal] system below (this page's lightbox is just a second
+  data-modal="lightbox" instance of it, see components.css); this listener
+  only copies the clicked photo into the lightbox's <img> first. Capture
+  phase (true as the 3rd addEventListener arg) guarantees it runs before
+  that system's own bubble-phase click listener opens the modal, so the
+  right image is already in place the instant it becomes visible — no-ops
+  harmlessly on any page without a .menu-item__media-trigger (every page
+  except menu.html).
+*/
+(function () {
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('.menu-item__media-trigger');
+    if (!trigger) return;
+
+    var sourceImg = trigger.querySelector('img');
+    var lightboxImg = document.querySelector('[data-modal="lightbox"] [data-lightbox-image]');
+    if (!sourceImg || !lightboxImg) return;
+
+    lightboxImg.src = sourceImg.currentSrc || sourceImg.src;
+    lightboxImg.alt = sourceImg.alt;
+  }, true);
 })();
 
 /*
@@ -897,8 +1014,12 @@
 
     document.removeEventListener('keydown', onKeydown);
 
-    if (activeTrigger && typeof activeTrigger.focus === 'function') activeTrigger.focus();
+    if (activeTrigger && typeof activeTrigger.focus === 'function') activeTrigger.focus({ preventScroll: true });
     activeModal = null;
+
+    // Lets a page-specific module (Portfolio's gallery lightbox) play its
+    // own close choreography without this generic system knowing about it.
+    modal.dispatchEvent(new CustomEvent('veranda:modalclose', { bubbles: true }));
 
     // Matches the CSS transition duration (0.35s) with a small margin —
     // [hidden] is only restored once the fade-out has actually finished,
@@ -939,6 +1060,36 @@
 })();
 
 /*
+  Menu photo lightbox — motion hooks. The capture-phase listener near the
+  top of this file copies the clicked dish photo into the lightbox; the
+  generic modal system opens/closes it. This only adds the optional
+  expand-from-thumbnail / collapse-back motion that scroll-experience.js
+  registers on window.__verandaFx (same as Portfolio's gallery lightbox).
+  Registered after the generic modal module on purpose: this bubbling
+  click runs once the lightbox is already open and laid out.
+*/
+(function () {
+  var lightbox = document.querySelector('.photo-lightbox:not(.photo-lightbox--gallery)');
+  if (!lightbox) return;
+  var image = lightbox.querySelector('[data-lightbox-image]');
+  if (!image) return;
+  var lastThumb = null;
+
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('.menu-item__media-trigger');
+    if (!trigger) return;
+    lastThumb = trigger.querySelector('img');
+    var open = window.__verandaFx && window.__verandaFx.lightboxOpen;
+    if (open && lastThumb) open(lastThumb, image);
+  });
+
+  lightbox.addEventListener('veranda:modalclose', function () {
+    var close = window.__verandaFx && window.__verandaFx.lightboxClose;
+    if (close && lastThumb) close(image, lastThumb);
+  });
+})();
+
+/*
   Menu category nav — active-indicator scroll-spy. The categories are
   anchor links (see the shared click handler above), not filters; this
   module only decides which one *looks* active as the page scrolls, using
@@ -949,6 +1100,8 @@
 (function () {
   var nav = document.querySelector('.menu-nav');
   if (!nav || !window.IntersectionObserver) return;
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var links = Array.prototype.slice.call(nav.querySelectorAll('.menu-nav__link'));
   if (!links.length) return;
@@ -969,6 +1122,25 @@
   function setActive(link) {
     links.forEach(function (l) {
       l.classList.toggle('menu-nav__link--active', l === link);
+    });
+    revealActiveLink(link);
+  }
+
+  // At mobile widths .menu-nav scrolls horizontally on its own (overflow-x:
+  // auto — desktop fits all 5 labels, so nav.scrollWidth === clientWidth
+  // there and this is a no-op). The underline already shows which category
+  // is active as the page scrolls, but if that link has scrolled out of
+  // the nav's own horizontal viewport (e.g. the visitor is on category 3+
+  // and never touched the nav strip itself), the indicator is invisible —
+  // nothing was pulling the nav's horizontal scroll along with it. Scoped
+  // to inline/horizontal movement only (block:'nearest' so this never
+  // nudges the page's own vertical scroll, which Lenis already owns).
+  function revealActiveLink(link) {
+    if (nav.scrollWidth <= nav.clientWidth) return;
+    link.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      inline: 'nearest',
+      block: 'nearest'
     });
   }
 
@@ -1054,4 +1226,393 @@
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(createObserver, 150);
   });
+})();
+
+/*
+  Portfolio page — category filter. Real client-side filtering (not an
+  anchor scroll like .menu-nav above): clicking a tab shows only the
+  gallery items whose data-category matches (or everything for "Усі").
+  See layout.css's "Portfolio page" section for why this doesn't reuse
+  createLoopCarousel for the gallery.
+
+  Home's four portfolio/events cards link here with a matching
+  ?category= slug (see index.html) — reserved for this page since it
+  didn't exist yet (see PROJECT.md/COMPONENTS.md). On load, that query
+  param pre-selects the matching tab instead of always starting on "Усі".
+*/
+(function () {
+  var filter = document.querySelector('.portfolio-filter');
+  var viewport = document.querySelector('.portfolio-gallery__viewport');
+  if (!filter || !viewport) return;
+
+  var links = Array.prototype.slice.call(filter.querySelectorAll('.portfolio-filter__link'));
+  var items = Array.prototype.slice.call(document.querySelectorAll('.portfolio-gallery__item'));
+  var progress = document.querySelector('[data-gallery-progress]');
+  var prevBtn = document.querySelector('[data-gallery-scroll-prev]');
+  var nextBtn = document.querySelector('[data-gallery-scroll-next]');
+  if (!links.length || !items.length) return;
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var segments = [];
+
+  // Rebuilds one dot per currently-visible item, matching Figma's
+  // pagination for the mobile scroll-snap row (see layout.css) — the
+  // dot count has to change with the active filter since the item set
+  // itself changes, unlike createLoopCarousel's dots (fixed count, set
+  // once at boot).
+  function buildDots() {
+    if (!progress) return;
+    progress.innerHTML = '';
+    segments = [];
+    var visible = items.filter(function (item) { return !item.classList.contains('is-hidden'); });
+    visible.forEach(function (item, i) {
+      var seg = document.createElement('button');
+      seg.type = 'button';
+      seg.className = 'carousel-progress__segment';
+      seg.setAttribute('aria-label', 'Перейти до фото ' + (i + 1));
+      seg.addEventListener('click', function () {
+        viewport.scrollTo({ left: item.offsetLeft - viewport.offsetLeft, behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+      progress.appendChild(seg);
+      segments.push({ el: seg, item: item });
+    });
+    updateActiveDot();
+  }
+
+  // Picks whichever visible item's center currently sits closest to the
+  // viewport's own center as "current" — cheap enough on scroll since
+  // the visible set is at most a dozen items.
+  function updateActiveDot() {
+    if (!segments.length) return;
+    var viewportCenter = viewport.getBoundingClientRect().left + viewport.clientWidth / 2;
+    var closest = null;
+    var closestDist = Infinity;
+    segments.forEach(function (seg) {
+      var rect = seg.item.getBoundingClientRect();
+      var dist = Math.abs((rect.left + rect.width / 2) - viewportCenter);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = seg;
+      }
+    });
+    segments.forEach(function (seg) {
+      seg.el.classList.toggle('is-active', seg === closest);
+    });
+  }
+
+  var scrollTimer;
+  viewport.addEventListener('scroll', function () {
+    window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(updateActiveDot, 100);
+  });
+
+  var currentCategory = null;
+
+  function commitFilter(category) {
+    links.forEach(function (link) {
+      link.classList.toggle('is-active', link.dataset.filter === category);
+    });
+    items.forEach(function (item) {
+      var matches = category === 'all' || item.dataset.category === category;
+      item.classList.toggle('is-hidden', !matches);
+    });
+    viewport.scrollTo({ left: 0, behavior: 'auto' });
+    buildDots();
+  }
+
+  // Desktop's grid gains/loses whole rows on every filter change, shifting
+  // everything below — scroll-experience.js refreshes ScrollTrigger on
+  // this event (see the CTA banner fix in CHANGELOG.md).
+  function notifyLayoutChange() {
+    window.dispatchEvent(new CustomEvent('veranda:layoutchange'));
+  }
+
+  function applyFilter(category) {
+    if (category === currentCategory) return;
+    var isFirst = currentCategory === null;
+    currentCategory = category;
+    // scroll-experience.js (GSAP, loads after this file, skipped entirely
+    // under reduced motion) registers window.__verandaFx.galleryFilter to
+    // animate the change with Flip. It must call commit() synchronously
+    // and done() once finished. Without it — or for the initial,
+    // pre-selected category on load — the change is instant.
+    var fx = window.__verandaFx && window.__verandaFx.galleryFilter;
+    if (fx && !isFirst) {
+      fx(items, function () { commitFilter(category); }, notifyLayoutChange);
+    } else {
+      commitFilter(category);
+      notifyLayoutChange();
+    }
+  }
+
+  links.forEach(function (link) {
+    link.addEventListener('click', function () {
+      applyFilter(link.dataset.filter);
+    });
+  });
+
+  function cardStep() {
+    var first = viewport.querySelector('.portfolio-gallery__item:not(.is-hidden)');
+    if (!first) return 0;
+    var style = getComputedStyle(viewport.querySelector('.portfolio-gallery__track'));
+    return first.getBoundingClientRect().width + (parseFloat(style.columnGap) || 0);
+  }
+
+  function scrollByCards(dir) {
+    viewport.scrollBy({ left: dir * cardStep(), behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { scrollByCards(-1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { scrollByCards(1); });
+
+  var requestedCategory = new URLSearchParams(window.location.search).get('category');
+  var hasMatch = requestedCategory && links.some(function (link) { return link.dataset.filter === requestedCategory; });
+  applyFilter(hasMatch ? requestedCategory : 'all');
+})();
+
+/*
+  Portfolio gallery lightbox. Reuses the generic [data-modal] system above
+  for open/close/Escape/focus-trap/scroll-lock (every gallery photo is a
+  data-modal-open="lightbox" button, same as Menu's food photos) and only
+  adds what a gallery needs on top: which photo to show, stepping through
+  the CURRENTLY FILTERED photos (prev/next buttons, arrow keys, swipe) and
+  the "3 / 12" counter.
+
+  Motion is optional, via window.__verandaFx hooks that scroll-experience.js
+  registers (Flip-style expand from the clicked thumbnail, clip-path wipe
+  between photos, collapse back on close). Without them (GSAP missing,
+  reduced motion) the plain CSS fade of .photo-lightbox still applies and
+  photo changes are instant.
+
+  The click listener is a normal bubbling one registered AFTER the generic
+  modal module's, so it runs once the lightbox is already open and laid
+  out, in the same task (no frame painted in between).
+*/
+(function () {
+  var lightbox = document.querySelector('.photo-lightbox--gallery');
+  var gallery = document.querySelector('.portfolio-gallery');
+  if (!lightbox || !gallery) return;
+
+  var image = lightbox.querySelector('[data-lightbox-image]');
+  var prevBtn = lightbox.querySelector('[data-lightbox-prev]');
+  var nextBtn = lightbox.querySelector('[data-lightbox-next]');
+  var currentEl = lightbox.querySelector('[data-lightbox-current]');
+  var totalEl = lightbox.querySelector('[data-lightbox-total]');
+  if (!image) return;
+
+  var list = [];
+  var index = 0;
+  var busy = false;
+
+  function fx(name) {
+    return window.__verandaFx && window.__verandaFx[name];
+  }
+
+  function isOpen() {
+    return lightbox.classList.contains('is-open');
+  }
+
+  function visibleTriggers() {
+    return Array.prototype.slice.call(
+      gallery.querySelectorAll('.portfolio-gallery__item:not(.is-hidden) .portfolio-gallery__trigger')
+    );
+  }
+
+  function thumbAt(i) {
+    return list[i] ? list[i].querySelector('img') : null;
+  }
+
+  function show(i) {
+    var thumb = thumbAt(i);
+    if (!thumb) return;
+    // Grid thumbnails can be small, fast-decoding versions; data-full
+    // points at the sharper file for the full-screen view (Portfolio's
+    // big photos — decoding 12 MP originals in the grid stalled scrolling).
+    image.src = thumb.getAttribute('data-full') || thumb.currentSrc || thumb.src;
+    image.alt = thumb.alt;
+    if (currentEl) currentEl.textContent = String(i + 1);
+    if (totalEl) totalEl.textContent = String(list.length);
+    var single = list.length < 2;
+    if (prevBtn) prevBtn.hidden = single;
+    if (nextBtn) nextBtn.hidden = single;
+  }
+
+  function navigate(dir) {
+    if (busy || list.length < 2) return;
+    var nextIndex = (index + dir + list.length) % list.length;
+    var swap = fx('lightboxSwap');
+    if (!swap) {
+      index = nextIndex;
+      show(index);
+      return;
+    }
+    busy = true;
+    swap(image, dir, function commit() {
+      index = nextIndex;
+      show(index);
+    }, function done() {
+      busy = false;
+    });
+  }
+
+  document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('.portfolio-gallery__trigger');
+    if (!trigger) return;
+    list = visibleTriggers();
+    index = Math.max(0, list.indexOf(trigger));
+    show(index);
+    var open = fx('lightboxOpen');
+    if (open) open(thumbAt(index), image);
+  });
+
+  lightbox.addEventListener('veranda:modalclose', function () {
+    busy = false;
+    var close = fx('lightboxClose');
+    if (close) close(image, thumbAt(index));
+  });
+
+  if (prevBtn) prevBtn.addEventListener('click', function () { navigate(-1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { navigate(1); });
+
+  document.addEventListener('keydown', function (event) {
+    if (!isOpen()) return;
+    if (event.key === 'ArrowLeft') { event.preventDefault(); navigate(-1); }
+    if (event.key === 'ArrowRight') { event.preventDefault(); navigate(1); }
+  });
+
+  // Horizontal swipe on the photo itself (touch or mouse). touch-action:
+  // pan-y on the image (components.css) keeps vertical gestures native.
+  var swipeStartX = null;
+  var swipeStartY = 0;
+  var SWIPE_MIN = 50;
+  image.addEventListener('pointerdown', function (event) {
+    swipeStartX = event.clientX;
+    swipeStartY = event.clientY;
+  });
+  image.addEventListener('pointerup', function (event) {
+    if (swipeStartX === null) return;
+    var dx = event.clientX - swipeStartX;
+    var dy = event.clientY - swipeStartY;
+    swipeStartX = null;
+    if (Math.abs(dx) > SWIPE_MIN && Math.abs(dx) > Math.abs(dy)) navigate(dx < 0 ? 1 : -1);
+  });
+  image.addEventListener('pointercancel', function () { swipeStartX = null; });
+})();
+
+/*
+  Magnetic CTAs — primary/inverse buttons lean toward the cursor while it
+  is over them and spring back on leave. Desktop + fine pointer + motion
+  allowed only. Writes only the --btn-magnet-x/y custom properties that
+  .btn's own transform already composes with the hover lift
+  (components.css), so no inline transform ever fights GSAP reveals
+  (which clear theirs) or the CSS hover. Excluded: the header CTA (flush
+  to the viewport edge — any shift opens a gap) and full-width form
+  submits (.btn--block).
+*/
+(function () {
+  var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
+  if (mq('(prefers-reduced-motion: reduce)')) return;
+  if (!mq('(hover: hover) and (pointer: fine)') || window.innerWidth < 1024) return;
+
+  var MAX_X = 10; // px at the button's left/right edge
+  var MAX_Y = 6;  // px at its top/bottom edge
+  var buttons = document.querySelectorAll('.btn--primary:not(.btn--block):not(.site-header__cta), .btn--inverse');
+
+  buttons.forEach(function (btn) {
+    // Resting box, measured on enter (and again after a scroll) rather
+    // than every move: the live rect already includes the pull itself.
+    var rest = null;
+
+    function measure() {
+      var r = btn.getBoundingClientRect();
+      var cs = window.getComputedStyle(btn);
+      var mx = parseFloat(cs.getPropertyValue('--btn-magnet-x')) || 0;
+      var my = parseFloat(cs.getPropertyValue('--btn-magnet-y')) || 0;
+      rest = { cx: r.left + r.width / 2 - mx, cy: r.top + r.height / 2 - my, hw: r.width / 2, hh: r.height / 2 };
+    }
+    function invalidate() { rest = null; }
+
+    btn.addEventListener('pointerenter', function (event) {
+      if (event.pointerType !== 'mouse') return;
+      btn.classList.remove('is-magnet-release');
+      measure();
+      window.addEventListener('scroll', invalidate, { passive: true });
+    });
+
+    btn.addEventListener('pointermove', function (event) {
+      if (event.pointerType !== 'mouse') return;
+      if (!rest) measure();
+      var nx = Math.max(-1, Math.min(1, (event.clientX - rest.cx) / rest.hw));
+      var ny = Math.max(-1, Math.min(1, (event.clientY - rest.cy) / rest.hh));
+      btn.style.setProperty('--btn-magnet-x', (nx * MAX_X).toFixed(2) + 'px');
+      btn.style.setProperty('--btn-magnet-y', (ny * MAX_Y).toFixed(2) + 'px');
+    });
+
+    btn.addEventListener('pointerleave', function () {
+      window.removeEventListener('scroll', invalidate);
+      rest = null;
+      btn.classList.add('is-magnet-release');
+      btn.style.removeProperty('--btn-magnet-x');
+      btn.style.removeProperty('--btn-magnet-y');
+    });
+  });
+})();
+
+/*
+  Hide-on-scroll header — scrolling down hides .site-header (translateY,
+  layout.css), any scroll up brings it back. Plain scroll listener (Lenis
+  drives native scroll, so this works with or without it) — no GSAP. The
+  header always shows near the top of the page and while keyboard focus
+  is inside it. It hides during the pinned sections too (Why-Us, CTA
+  banners) — those pin flush with the viewport top ('top top' in
+  scroll-experience.js), so scrolling down through them shows the whole
+  section. .menu-nav follows it up via CSS.
+*/
+(function () {
+  var header = document.querySelector('.site-header');
+  if (!header) return;
+  var root = document.documentElement;
+  var DELTA = 6; // px of travel before a direction change counts (trackpad jitter)
+  var lastY = window.scrollY;
+  var hidden = false;
+  var ticking = false;
+
+  function threshold() { return header.offsetHeight * 2; }
+
+  function setHidden(value) {
+    if (value === hidden) return;
+    hidden = value;
+    root.classList.toggle('is-header-hidden', value);
+  }
+
+  function mustShow() {
+    return header.contains(document.activeElement);
+  }
+
+  function update() {
+    ticking = false;
+    var y = window.scrollY;
+    if (y <= threshold() || mustShow()) {
+      setHidden(false);
+      lastY = y;
+      return;
+    }
+    if (Math.abs(y - lastY) < DELTA) return;
+    setHidden(y > lastY);
+    lastY = y;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(update);
+  }, { passive: true });
+
+  header.addEventListener('focusin', function () { setHidden(false); });
+
+  // For the anchor-scroll offset above: a scroll ending at destY leaves
+  // the header visible only if it ends near the top or goes upward.
+  window.__verandaHeader = {
+    visibleAt: function (destY) { return destY <= threshold() || destY < window.scrollY; }
+  };
 })();

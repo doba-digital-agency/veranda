@@ -2,6 +2,15 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<!-- Page-transition opt-in: must be INLINE and first in <head>, not in base.css —
+     Chrome decides whether the incoming page accepts the transition before
+     external stylesheets finish loading (~half of forward navigations were
+     skipped). Copy this line into every new page. See CHANGELOG.md. -->
+<style>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+<!-- Reload curtain: View Transitions never run on a reload, so this tags <html>
+     for base.css's hand-made copy of the same curtain. Inline + first, so the
+     class exists before the first paint. Copy into every new page. -->
+<script>try{var n=performance.getEntriesByType('navigation')[0];if(n&&n.type==='reload'&&matchMedia('(prefers-reduced-motion: no-preference)').matches)document.documentElement.classList.add('is-reloading');}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Меню кейтерингу — холодні закуски, гарячі страви, десерти, напої | Veranda by Voloshyn</title>
 <meta name="description" content="Авторське меню Veranda by Voloshyn: холодні закуски, гарячі страви, основні страви, десерти та напої для подій будь-якого формату. Дізнайтесь ціни та замовте прорахунок.">
@@ -18,12 +27,12 @@
 <header class="site-header">
   <div class="site-header__bar">
     <a class="site-header__logo" href="index.html">
-      <img class="site-header__logo-image" src="assets/images/logo-mark.png" alt="Veranda by Voloshyn">
+      <img class="site-header__logo-image" src="assets/images/logo-mark.webp" alt="Veranda by Voloshyn">
     </a>
     <nav class="site-header__nav" aria-label="Основна навігація">
       <ul class="site-header__nav-list">
         <li><a class="site-header__nav-link" href="services.html">Послуги</a></li>
-        <li><a class="site-header__nav-link" href="menu.html">Меню</a></li>
+        <li><a class="site-header__nav-link" href="menu.html" aria-current="page">Меню</a></li>
         <li><a class="site-header__nav-link" href="about.html">Про нас</a></li>
         <li><a class="site-header__nav-link" href="portfolio.html">Портфоліо</a></li>
         <li><a class="site-header__nav-link" href="contacts.html">Контакти</a></li>
@@ -44,7 +53,7 @@
     <nav aria-label="Мобільна навігація">
       <ul class="site-header__mobile-nav-list">
         <li><a class="site-header__mobile-nav-link" href="services.html">Послуги</a></li>
-        <li><a class="site-header__mobile-nav-link" href="menu.html">Меню</a></li>
+        <li><a class="site-header__mobile-nav-link" href="menu.html" aria-current="page">Меню</a></li>
         <li><a class="site-header__mobile-nav-link" href="about.html">Про нас</a></li>
         <li><a class="site-header__mobile-nav-link" href="portfolio.html">Портфоліо</a></li>
         <li><a class="site-header__mobile-nav-link" href="contacts.html">Контакти</a></li>
@@ -56,8 +65,8 @@
 <main>
 
   <section class="hero hero--menu" data-hero>
-    <div class="hero__media" data-hero-media>
-      <img src="assets/images/menu-buffet-tiered-display.jpg" alt="Дерев'яні тарелі з круасанами та канапе на фуршетному столі Veranda by Voloshyn">
+    <div class="hero__media" data-hero-media data-hero-reveal="plate">
+      <img src="assets/images/menu-buffet-tiered-display.webp" alt="Дерев'яні тарелі з круасанами та канапе на фуршетному столі Veranda by Voloshyn">
     </div>
     <div class="hero__content" data-hero-content>
       <h1 class="hero__title" id="hero-title">Меню</h1>
@@ -98,7 +107,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Телятина су-від з сезонними овочами» на весь екран">
+              <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -117,7 +128,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Тарт з лісовими ягодами» на весь екран">
+              <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -136,7 +149,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Домашній лимонад» на весь екран">
+              <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
+            </button>
           </div>
         </article>
       </div>
@@ -161,7 +176,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Телятина су-від з сезонними овочами» на весь екран">
+              <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -180,7 +197,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Тарт з лісовими ягодами» на весь екран">
+              <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -199,7 +218,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Домашній лимонад» на весь екран">
+              <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
+            </button>
           </div>
         </article>
       </div>
@@ -224,7 +245,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Телятина су-від з сезонними овочами» на весь екран">
+              <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -243,7 +266,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Тарт з лісовими ягодами» на весь екран">
+              <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -262,7 +287,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Домашній лимонад» на весь екран">
+              <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
+            </button>
           </div>
         </article>
       </div>
@@ -287,7 +314,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Телятина су-від з сезонними овочами» на весь екран">
+              <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -306,7 +335,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Тарт з лісовими ягодами» на весь екран">
+              <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -325,7 +356,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Домашній лимонад» на весь екран">
+              <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
+            </button>
           </div>
         </article>
       </div>
@@ -350,7 +383,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dish-beef-medallions.jpg" alt="Телятина су-від з сезонними овочами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Телятина су-від з сезонними овочами» на весь екран">
+              <img src="assets/images/menu-dish-beef-medallions.webp" alt="Телятина су-від з сезонними овочами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -369,7 +404,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/menu-dessert-berry-tart.jpg" alt="Тарт з лісовими ягодами">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Тарт з лісовими ягодами» на весь екран">
+              <img src="assets/images/menu-dessert-berry-tart.webp" alt="Тарт з лісовими ягодами">
+            </button>
           </div>
         </article>
         <article class="menu-item">
@@ -388,7 +425,9 @@
             </div>
           </div>
           <div class="menu-item__media">
-            <img src="assets/images/home-drink-lemonade.png" alt="Домашній лимонад з лимоном і м'ятою">
+            <button type="button" class="menu-item__media-trigger" data-modal-open="lightbox" aria-label="Переглянути фото «Домашній лимонад» на весь екран">
+              <img src="assets/images/home-drink-lemonade.webp" alt="Домашній лимонад з лимоном і м'ятою">
+            </button>
           </div>
         </article>
       </div>
@@ -397,7 +436,7 @@
 
   <section class="cta-banner cta-banner--menu" aria-labelledby="cta-banner-heading">
     <div class="cta-banner__media">
-      <img src="assets/images/cta-banner-desserts.png" alt="">
+      <img src="assets/images/cta-banner-desserts.webp" alt="">
     </div>
     <h2 class="hero__title" id="cta-banner-heading">Сподобалось меню?</h2>
     <p class="cta-banner__text">Залиште заявку — розрахуємо вартість заходу з урахуванням обраних страв</p>
@@ -460,10 +499,10 @@
     <div class="site-footer__brand">
       <p class="site-footer__brand-name">Veranda by Voloshyn</p>
       <p class="site-footer__tagline">Кейтеринг, який створює атмосферу</p>
-      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.png" alt="">
+      <img class="site-footer__logo-decor" src="assets/images/logo-mark-on-dark.webp" alt="">
     </div>
     <div class="site-footer__columns">
-      <img class="site-footer__mobile-decor" src="assets/images/logo.png" alt="" aria-hidden="true">
+      <img class="site-footer__mobile-decor" src="assets/images/logo.webp" alt="" aria-hidden="true">
       <div class="site-footer__column">
         <p class="site-footer__column-title">Навігація</p>
         <ul class="site-footer__column-list">
@@ -492,10 +531,10 @@
     </div>
     <div class="site-footer__decor" aria-hidden="true">
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--a">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
       <div class="site-footer__decor-flower-wrap site-footer__decor-flower-wrap--b">
-        <img class="site-footer__decor-flower" src="assets/images/logo.png" alt="">
+        <img class="site-footer__decor-flower" src="assets/images/logo.webp" alt="">
       </div>
     </div>
   </div>
@@ -529,11 +568,19 @@
   </div>
 </div>
 
+<div class="photo-lightbox" data-modal="lightbox" aria-hidden="true" hidden>
+  <button class="photo-lightbox__close" type="button" data-modal-close aria-label="Закрити перегляд фото">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  <img class="photo-lightbox__image" data-lightbox-image src="" alt="">
+</div>
+
 <script src="js/main.js"></script>
 <script src="js/botanical-animation.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.15.0/SplitText.min.js"></script><script src="js/scroll-experience.js"></script>
+<script src="js/webgl-fx.js"></script>
 </body>
 </html>

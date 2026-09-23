@@ -709,6 +709,10 @@
       var aboutStoryDecor = document.querySelector('.about-story__decor');
       if (aboutStoryDecor) initFlower(aboutStoryDecor, COLOR_OLIVE, { maxSway: 33.75, phaseSpread: 2.6, windSpeed: 1.35 });
 
+      // Contacts page title decor — same babys-breath asset as Why-Us.
+      var contactsDecor = document.querySelector('.contacts__decor');
+      if (contactsDecor) initFlower(contactsDecor, COLOR_OLIVE, { maxSway: 22.5, phaseSpread: 2.1, windSpeed: 1.16 });
+
       if (!TEST_SINGLE_FLOWER) {
         var testimonialsDecor = document.querySelector('.testimonials__decor');
         if (testimonialsDecor) initFlower(testimonialsDecor, COLOR_OLIVE, { maxSway: 33.75, phaseSpread: 2.6, windSpeed: 1.35 });

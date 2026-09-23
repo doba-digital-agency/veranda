@@ -129,3 +129,87 @@ input::placeholder,
 textarea::placeholder {
   color: var(--color-text-on-cream-70);
 }
+
+/* =========================================================
+   Page-to-page transition — native cross-document View Transitions
+   (Chrome/Edge 126+, Safari 18.2+; other browsers just navigate normally).
+   CSS only, on purpose: no link interception in JS, so real links, the
+   back button, bfcache, modifier-clicks and Lenis are all untouched.
+
+   The old page eases back and fades, uncovering an olive brand curtain
+   with the logo; the new page then wipes up from the bottom (the site's
+   clip-path signature). The fixed header gets its own transition name so
+   it stays put above both, instead of being wiped with the page.
+   Reduced motion: none of this applies (plain navigation).
+
+   The opt-in itself (@view-transition { navigation: auto }) is NOT here:
+   it's an inline <style> first in every page's <head>. From this external
+   file it arrived too late — Chrome resolves the incoming page's opt-in
+   before external CSS has finished loading, and skipped ~half of forward
+   navigations ("ViewTransition opt-in disabled").
+   ========================================================= */
+@media (prefers-reduced-motion: no-preference) {
+  .site-header {
+    view-transition-name: site-header;
+  }
+
+  ::view-transition {
+    background: var(--color-dark-olive) url("../assets/images/logo-mark-on-dark.webp") center / auto 120px no-repeat;
+  }
+
+  ::view-transition-old(root) {
+    animation: page-leave 0.55s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: page-enter 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.35s both;
+  }
+}
+
+@keyframes page-leave {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes page-enter {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* The same curtain on a page RELOAD. Browsers never run a cross-document
+   View Transition for a reload (spec: reload navigations are skipped), so
+   an inline <script> first in every page's <head> tags <html> with
+   .is-reloading when performance's navigation entry says "reload" (and
+   motion is allowed), and this replays the look by hand: the olive logo
+   curtain covers the page, then the page wipes up from the bottom with
+   page-enter's exact timing — the curtain's bottom edge rising is the
+   complement of the new page's clip growing upward. Below the fixed
+   header (z 90), which stays put exactly as in the real transition. CSS
+   only after that tag, so nothing else on the page depends on it. */
+@media (prefers-reduced-motion: no-preference) {
+  html.is-reloading::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    pointer-events: none;
+    background: var(--color-dark-olive) url("../assets/images/logo-mark-on-dark.webp") center / auto 120px no-repeat;
+    animation: reload-curtain 0.85s cubic-bezier(0.65, 0, 0.35, 1) 0.35s both;
+  }
+}
+
+@keyframes reload-curtain {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
